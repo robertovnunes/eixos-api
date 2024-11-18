@@ -7,8 +7,8 @@ class TasksService {
     
     private tasksRepository: TasksRepository;
 
-    constructor() {
-        this.tasksRepository = new TasksRepository();
+    constructor(tasksRepository: TasksRepository) {
+        this.tasksRepository = tasksRepository;
     }
 
     async findAll(): Promise<TaskModel[]> {

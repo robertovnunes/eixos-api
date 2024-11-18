@@ -1,11 +1,13 @@
-import e, { Router } from "express";
-import { TaskController } from "./controllers/task.controller";
+import { Express, Router } from "express";
+import TaskController from "./controllers/task.controller";
+import TaskService from "./services/tasks.service";
+import {injector} from './di/index';
 
-const routes = Router();
+const router = Router();
 
-const taskController = new TaskController();
-
-
-routes.use('/tasks', taskController.router);
-
-export default routes;
+export default (app: Express) => {
+    app.use('/api', new TaskController(
+        router, 
+        injector.getService(TaskService)).router
+    );
+};
