@@ -13,6 +13,18 @@ class TaskController {
     this.initRoutes();
   }
 
+  /**
+   * @swagger
+   * /tasks:
+   *  get:
+   *   description: Get all tasks
+   *  responses:
+   *   200:
+   *   description: Success
+   *  schema:
+   *  type: array
+   */
+
   private initRoutes() {
     this.router.get(this.prefix, (req: Request, res: Response) => {
       this.getAllTasks(req, res);
