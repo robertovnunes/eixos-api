@@ -9,18 +9,13 @@ export default class TaskEntity extends BaseEntity {
   deadline: string;
 
   constructor(
-    id: string, 
-    title: string, 
-    description: string, 
-    done: boolean, 
-    priority: string, 
-    deadline: string
+    task: TaskEntity
   ) {
-    super(id || '');
-    this.title = title;
-    this.description = description;
-    this.completed = done;
-    this.priority = priority;
-    this.deadline = deadline;
+    super(task.id || '');
+    this.title = task.title;
+    this.description = task.description;
+    this.completed = task.completed;
+    this.priority = task.priority;
+    this.deadline = task.deadline;
   }
 }

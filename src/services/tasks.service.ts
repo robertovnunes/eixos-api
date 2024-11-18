@@ -25,7 +25,7 @@ class TasksService {
     }
 
     async create(task: TaskModel): Promise<TaskModel> {
-        const newTask = await this.tasksRepository.create(new TaskEntity('', task.title, task.description, task.completed, task.priority, task.deadline));
+        const newTask = await this.tasksRepository.create(new TaskEntity(task));
         return new TaskModel(newTask);
     }
 
@@ -46,3 +46,5 @@ class TasksService {
         return await this.tasksRepository.delete(id);
     }
 }
+
+export default TasksService;
