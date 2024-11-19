@@ -8,21 +8,125 @@ class TaskController {
   private taskService: TasksService;
 
   constructor(router: Router, taskService: TasksService) {
-    this.router = Router();
+    this.router = router;
     this.taskService = taskService;
     this.initRoutes();
   }
 
   /**
    * @swagger
-   * /tasks:
-   *  get:
-   *   description: Get all tasks
-   *  responses:
-   *   200:
-   *   description: Success
-   *  schema:
-   *  type: array
+   * definitions:
+   *   Task:
+   *     type: object
+   *     properties:
+   *       id:
+   *         type: string
+   *         description: Task ID
+   *         example: 1
+   *       title:
+   *         type: string
+   *         description: Task title
+   *         example: Task 1
+   *       completed:
+   *         type: boolean
+   *         description: Task completion status
+   *         example: false
+   *       priority:
+   *         type: string
+   *         description: Task priority
+   *         example: high
+   *       deadline:
+   *         type: string
+   *         format: date
+   *         description: Task deadline
+   *         example: 2021-12-31
+   *   newTask:
+   *     type: object
+   *     properties:
+   *       title:
+   *         type: string
+   *         description: Task title
+   *         example: Task 1
+   *       completed:
+   *         type: boolean
+   *         description: Task completion status
+   *         example: false
+   *       priority:
+   *         type: string
+   *         description: Task priority
+   *         example: high
+   *       deadline:
+   *         type: string
+   *         format: date
+   *         description: Task deadline
+   *         example: 2021-12-31
+   *
+   * paths:
+   *   /tasks:
+   *     get:
+   *       summary: Retrieve all tasks
+   *       description: Fetch a list of all tasks
+   *       responses:
+   *         200:
+   *           description: A list of tasks
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: array
+   *                 items:
+   *                   $ref: '#/definitions/Task'
+   *     post:
+   *       summary: Create a task
+   *       description: Create a new task
+   *       requestBody:
+   *         required: true
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/newTask'
+   *       responses:
+   *         201:
+   *          description: A task created
+   *          content:
+   *           application/json:
+   *            schema:
+   *             $ref: '#/definitions/Task'
+   * 
+   * 
+   *   /tasks/{id}:
+   *     get:
+   *       summary: Retrieve a task by ID
+   *       description: Fetch a task by its ID
+   *       parameters:
+   *        - in: path
+   *          name: id
+   *          schema:
+   *           type: string
+   *          required: true
+   *          description: Task ID
+   *       responses:
+   *        200:
+   *         description: A task
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/Task'
+   *        404:
+   *         description: Task not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                  messageCode:
+   *                    type: integer
+   *                    description: 404
+   *                    example: 404
+   *                  message:
+   *                    type: string
+   *                    description: Task not found
+   *                    example: Task not found
+   *
    */
 
   private initRoutes() {
@@ -44,6 +148,7 @@ class TaskController {
   }
 
   private getAllTasks = async (req: Request, res: Response) => {
+    
     const tasks = await this.taskService.findAll();
     res.send(tasks);
   };

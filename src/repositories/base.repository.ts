@@ -9,9 +9,15 @@ type FilterFunction<T> = (item: T) => boolean;
 
 export default class BaseRepository<T extends BaseEntity> {
   private filePath: string;
+  private db: T[] = [];
 
   constructor(fileName: string) {
-    this.filePath = path.join(__dirname, '../../database', `${fileName}.json`);
+    try{
+      this.filePath = path.join(__dirname, '../../database', `${fileName}.json`);
+      this.loadData().then(data => this.db = data);
+    } catch (error) {
+      throw new HttpInternalServerError({msg: 'Error while trying to access the database', msgCode: 'database-error'});
+    }
   }
 
   // Método para carregar dados do arquivo
@@ -35,12 +41,11 @@ export default class BaseRepository<T extends BaseEntity> {
 
   // CRUD Methods
   async findAll(): Promise<T[]> {
-    return await this.loadData();
+    return this.db;
   }
 
   async findById(id: string): Promise<T | null> {
-    const data = await this.loadData();
-    return data.find((item: any) => item.id === id) || null;
+    return this.db.find((item: any) => item.id === id) || null;
   }
 
   async create(item: T): Promise<T> {

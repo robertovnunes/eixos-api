@@ -4,7 +4,7 @@ export default class Database {
   data: { [key: string]: any[] };
   private static instance: Database;
 
-  private constructor() {
+  constructor() {
     this.data = {};
   }
 
@@ -23,9 +23,36 @@ export default class Database {
     const db = Database.getInstance();
     db.data = {
       tasks: [
-        new TaskEntity('1', 'Estudar Node.js', 'Estudar Node.js', false, 'low', '2021-09-01'),
-        new TaskEntity('2', 'Estudar TypeScript', 'Estudar TypeScript', false, 'low', '2021-09-01'),
-        new TaskEntity('3', 'Estudar JavaScript', 'Estudar JavaScript', false, 'low', '2021-09-01'),
+        new TaskEntity(
+          {
+            id:'1', 
+            title:'Estudar Node.js', 
+            description:'Estudar Node.js', 
+            completed:false,
+            priority:'low', 
+            deadline:'2021-09-01'
+          }
+        ),
+        new TaskEntity(
+          {
+            id:'2', 
+            title:'Estudar TypeScript', 
+            description:'Estudar TypeScript', 
+            completed:false,
+            priority:'low', 
+            deadline:'2021-09-01'
+          }
+        ),
+        new TaskEntity(
+          {
+            id:'3', 
+            title:'Estudar Nest.js', 
+            description:'Estudar Nest.js', 
+            completed:false,
+            priority:'low', 
+            deadline:'2021-09-01'
+          }
+        ),
       ],
     };
   }

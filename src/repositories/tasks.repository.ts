@@ -2,7 +2,6 @@ import TaskEntity from "../entities/task.entity";
 import BaseRepository from "./base.repository";
 
 export default class TasksRepository extends BaseRepository<TaskEntity> {
-  private db: any;
 
   constructor() {
     super('tasks');
