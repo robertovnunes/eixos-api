@@ -62,36 +62,6 @@ class TaskController {
    *         example: 2021-12-31
    *
    * paths:
-   *   /api/tasks:
-   *     get:
-   *       summary: Retrieve all tasks
-   *       description: Fetch a list of all tasks
-   *       responses:
-   *         200:
-   *           description: A list of tasks
-   *           content:
-   *             application/json:
-   *               schema:
-   *                 type: array
-   *                 items:
-   *                   $ref: '#/definitions/Task'
-   *     post:
-   *       summary: Create a task
-   *       description: Create a new task
-   *       requestBody:
-   *         required: true
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/definitions/newTask'
-   *       responses:
-   *         201:
-   *          description: A task created
-   *          content:
-   *           application/json:
-   *            schema:
-   *             $ref: '#/definitions/Task'
-   * 
    * 
    *   /api/tasks/{id}:
    *     get:
@@ -126,6 +96,55 @@ class TaskController {
    *                    type: string
    *                    description: Task not found
    *                    example: Task not found
+   * 
+   *   /api/tasks:
+   *     get:
+   *       summary: Retrieve all tasks
+   *       description: Fetch a list of all tasks
+   *       responses:
+   *         200:
+   *           description: A list of tasks
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 type: array
+   *                 items:
+   *                   $ref: '#/definitions/Task'
+   *     post:
+   *       summary: Create a task
+   *       description: Create a new task
+   *       requestBody:
+   *         required: true
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/newTask'
+   *       responses:
+   *         201:
+   *          description: A task created
+   *          content:
+   *           application/json:
+   *            schema:
+   *             $ref: '#/definitions/Task'
+   * 
+   *     patch:
+   *       summary: Update a task
+   *       description: Update a task by its ID
+   *       parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *           required: true
+   *           description: Task ID
+   *       requestBody:
+   *         required: true
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/newTask'
+   * 
+   * 
    *
    */
 
@@ -148,7 +167,6 @@ class TaskController {
   }
 
   private getAllTasks = async (req: Request, res: Response) => {
-
     const tasks = await this.taskService.findAll();
     res.send(tasks);
   };
