@@ -35,7 +35,7 @@ class TasksService {
             throw new HttpNotFoundError({msg:'Task not found', msgCode: 'task-not-found'});
         }
         const updatedTaskEntity = await this.tasksRepository.update(id, updatedTask);
-        return new TaskModel(updatedTaskEntity);
+        return updatedTaskEntity !== null ? new TaskModel(updatedTaskEntity): null;
     }
 
     async delete(id: string): Promise<boolean> {

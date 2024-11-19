@@ -8,22 +8,22 @@ export default class TasksRepository extends BaseRepository<TaskEntity> {
   }
 
     async findAll(): Promise<TaskEntity[]> {
-        return await this.findAll();
+        return await super.findAll();
     }
 
     async findById(id: string): Promise<TaskEntity | null> {
-        return await this.findById(id);
+        return await super.findById(id);
     }
 
     async create(task: TaskEntity): Promise<TaskEntity> {
-        return await this.create(task);
+        return await super.create(task);
     }
 
-    async update(id: string, updatedTask: Partial<TaskEntity>): Promise<TaskEntity> {
-        return await this.update(id, updatedTask);
+    async update(id: string, updatedTask: Partial<TaskEntity>): Promise<TaskEntity | null> {
+        return await super.update(id, updatedTask);
     }
 
     async delete(id: string): Promise<boolean> {
-        return await this.delete(id);
+        return await super.delete(id);
     }
 }

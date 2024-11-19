@@ -62,7 +62,7 @@ class TaskController {
    *         example: 2021-12-31
    *
    * paths:
-   *   /tasks:
+   *   /api/tasks:
    *     get:
    *       summary: Retrieve all tasks
    *       description: Fetch a list of all tasks
@@ -93,7 +93,7 @@ class TaskController {
    *             $ref: '#/definitions/Task'
    * 
    * 
-   *   /tasks/{id}:
+   *   /api/tasks/{id}:
    *     get:
    *       summary: Retrieve a task by ID
    *       description: Fetch a task by its ID
@@ -148,7 +148,7 @@ class TaskController {
   }
 
   private getAllTasks = async (req: Request, res: Response) => {
-    
+
     const tasks = await this.taskService.findAll();
     res.send(tasks);
   };

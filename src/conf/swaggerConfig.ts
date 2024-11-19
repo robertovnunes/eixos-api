@@ -1,4 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import server from "./server";
 
 const options = {
   definition: {
