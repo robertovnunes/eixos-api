@@ -27,6 +27,10 @@ class TaskController {
    *         type: string
    *         description: Task title
    *         example: Task 1
+   *       description:
+   *         type: string
+   *         description: Task description
+   *         example: Task 1 description
    *       completed:
    *         type: boolean
    *         description: Task completion status
@@ -47,6 +51,10 @@ class TaskController {
    *         type: string
    *         description: Task title
    *         example: Task 1
+   *       description:
+   *         type: string
+   *         description: Task description
+   *         example: Task 1 description
    *       completed:
    *         type: boolean
    *         description: Task completion status
@@ -62,7 +70,7 @@ class TaskController {
    *         example: 2021-12-31
    *
    * paths:
-   * 
+   *
    *   /api/tasks/{id}:
    *     get:
    *       summary: Retrieve a task by ID
@@ -96,7 +104,7 @@ class TaskController {
    *                    type: string
    *                    description: Task not found
    *                    example: Task not found
-   * 
+   *
    *   /api/tasks:
    *     get:
    *       summary: Retrieve all tasks
@@ -126,7 +134,7 @@ class TaskController {
    *           application/json:
    *            schema:
    *             $ref: '#/definitions/Task'
-   * 
+   *
    *     patch:
    *       summary: Update a task
    *       description: Update a task by its ID
@@ -143,8 +151,8 @@ class TaskController {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/newTask'
-   * 
-   * 
+   *
+   *
    *
    */
 
@@ -167,28 +175,92 @@ class TaskController {
   }
 
   private getAllTasks = async (req: Request, res: Response) => {
-    const tasks = await this.taskService.findAll();
-    res.send(tasks);
+    try {
+      const tasks = await this.taskService.findAll();
+      if (tasks.length === 0) {
+        console.error('/GET 204 Empty list');
+        res
+          .status(204)
+          .send({ messageCode: 204, message: 'No tasks in database' });
+      } else {
+        console.log('/GET 200 OK');
+        res.status(200).send(tasks);
+      }
+    } catch (error) {
+      console.error('/GET 404 not found');
+      res.status(404).send({ messageCode: 404, message: 'Tasks not found' });
+    }
   };
 
   private getTaskById = async (req: Request, res: Response) => {
-    const task = await this.taskService.findById(req.params.id);
-    res.send(task);
+    try {
+      const task = await this.taskService.findById(req.params.id);
+      if (!task) {
+        console.error('/GET 404 not found');
+        res.status(404).send({ messageCode: 'not-found', message: 'Task not found' });
+      } else {
+        console.log('/GET 200 OK');
+        res.status(200).send(task);
+      }
+    } catch (error) {
+      console.error('/GET 500 ' + error);
+      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+    }
   };
 
   private createTask = async (req: Request, res: Response) => {
-    const task = await this.taskService.create(new TaskEntity(req.body));
-    res.send(task);
+    try {
+      let missingFields: string[] = [];
+      if (!req.body.title) missingFields.push('title');
+      if (!req.body.description) missingFields.push('description');
+      if (!req.body.completed) missingFields.push('completed');
+      if (!req.body.priority) missingFields.push('priority');
+      if (!req.body.deadline) missingFields.push('deadline');
+      if (missingFields.length > 0) {
+        console.error('/POST 400 Bad request (missing fields)');
+        res.status(400).send({ messageCode: 'missing-fields', message: 'Missing fields: ' + missingFields.join(', ') });
+      } else {
+        const task = await this.taskService.create(req.body as TaskEntity);
+        console.log('/POST 201 Created');
+        res.status(201).send(task);
+      }
+      
+    } catch (error) {
+      console.error('/POST 500 ' + error);
+      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+    }
   };
 
   private updateTask = async (req: Request, res: Response) => {
-    const task = await this.taskService.update(req.params.id, req.body);
-    res.send(task);
+    try {
+      const task = await this.taskService.update(req.params.id, req.body as Partial<TaskEntity>);
+      if (!task) {
+        console.error('/PATCH 404 not found');
+        res.status(404).send({ messageCode: 'not-found', message: 'Task not found' });
+      } else {
+        console.log('/PATCH 200 OK');
+        res.status(200).send(task);
+      }
+    } catch (error) {
+      console.error('/PATCH 500 ' + error);
+      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+    }
   };
 
   private deleteTask = async (req: Request, res: Response) => {
-    const task = await this.taskService.delete(req.params.id);
-    res.send(task);
+    try {
+      const result = await this.taskService.delete(req.params.id);
+      if (!result) {
+        console.error('/DELETE 404 not found');
+        res.status(404).send({ messageCode: 'not-found', message: 'Task not found' });
+      } else {
+        console.log('/DELETE 204 No content');
+        res.status(204).send();
+      }
+    } catch (error) {
+      console.error('/DELETE 500 ' + error);
+      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+    }
   };
 }
 

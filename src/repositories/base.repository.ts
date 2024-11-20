@@ -51,7 +51,7 @@ export default class BaseRepository<T extends BaseEntity> {
   async create(item: T): Promise<T> {
     const data = await this.loadData();
     const newItem = { ...item, id: uuidv4() };
-    data.push(item);
+    data.push(newItem);
     await this.saveData(data);
     return item;
   }
