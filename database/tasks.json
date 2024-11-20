@@ -2,10 +2,10 @@
   {
     "id": "1",
     "title": "Task 1",
-    "description": "Description 1",
+    "description": "Task 1 description",
     "completed": false,
     "priority": "high",
-    "deadline": "2021-12-31T23:59:59.999Z"
+    "deadline": "2021-12-31"
   },
   {
     "id": "2",

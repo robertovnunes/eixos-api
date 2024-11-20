@@ -104,6 +104,44 @@ class TaskController {
    *                    type: string
    *                    description: Task not found
    *                    example: Task not found
+   *     patch:
+   *       summary: Update a task
+   *       description: Update a task by its ID
+   *       parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *           required: true
+   *           description: Task ID
+   *       requestBody:
+   *         required: true
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/newTask'
+   *       responses:
+   *         200:
+   *           description: A task updated
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/definitions/Task'
+   *         404:
+   *          description: Task not found
+   *          content:
+   *            application/json:
+   *             schema:
+   *              type: object
+   *              properties:
+   *                messageCode:
+   *                  type: integer
+   *                  description: 404
+   *                  example: 404
+   *                message:
+   *                  type: string
+   *                  description: Task not found
+   *                  example: Task not found
    *
    *   /api/tasks:
    *     get:
@@ -135,22 +173,6 @@ class TaskController {
    *            schema:
    *             $ref: '#/definitions/Task'
    *
-   *     patch:
-   *       summary: Update a task
-   *       description: Update a task by its ID
-   *       parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *           required: true
-   *           description: Task ID
-   *       requestBody:
-   *         required: true
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/definitions/newTask'
    *
    *
    *
@@ -197,14 +219,18 @@ class TaskController {
       const task = await this.taskService.findById(req.params.id);
       if (!task) {
         console.error('/GET 404 not found');
-        res.status(404).send({ messageCode: 'not-found', message: 'Task not found' });
+        res
+          .status(404)
+          .send({ messageCode: 'not-found', message: 'Task not found' });
       } else {
         console.log('/GET 200 OK');
         res.status(200).send(task);
       }
     } catch (error) {
       console.error('/GET 500 ' + error);
-      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+      res
+        .status(500)
+        .send({ messageCode: 500, message: 'Internal server error' });
     }
   };
 
@@ -218,32 +244,45 @@ class TaskController {
       if (!req.body.deadline) missingFields.push('deadline');
       if (missingFields.length > 0) {
         console.error('/POST 400 Bad request (missing fields)');
-        res.status(400).send({ messageCode: 'missing-fields', message: 'Missing fields: ' + missingFields.join(', ') });
+        res
+          .status(400)
+          .send({
+            messageCode: 'missing-fields',
+            message: 'Missing fields: ' + missingFields.join(', '),
+          });
       } else {
         const task = await this.taskService.create(req.body as TaskEntity);
         console.log('/POST 201 Created');
         res.status(201).send(task);
       }
-      
     } catch (error) {
       console.error('/POST 500 ' + error);
-      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+      res
+        .status(500)
+        .send({ messageCode: 500, message: 'Internal server error' });
     }
   };
 
   private updateTask = async (req: Request, res: Response) => {
     try {
-      const task = await this.taskService.update(req.params.id, req.body as Partial<TaskEntity>);
+      const task = await this.taskService.update(
+        req.params.id,
+        req.body as Partial<TaskEntity>,
+      );
       if (!task) {
         console.error('/PATCH 404 not found');
-        res.status(404).send({ messageCode: 'not-found', message: 'Task not found' });
+        res
+          .status(404)
+          .send({ messageCode: 'not-found', message: 'Task not found' });
       } else {
-        console.log('/PATCH 200 OK');
-        res.status(200).send(task);
+        console.log('/PATCH 202 OK');
+        res.status(202).send(task);
       }
     } catch (error) {
       console.error('/PATCH 500 ' + error);
-      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+      res
+        .status(500)
+        .send({ messageCode: 500, message: 'Internal server error' });
     }
   };
 
@@ -252,14 +291,18 @@ class TaskController {
       const result = await this.taskService.delete(req.params.id);
       if (!result) {
         console.error('/DELETE 404 not found');
-        res.status(404).send({ messageCode: 'not-found', message: 'Task not found' });
+        res
+          .status(404)
+          .send({ messageCode: 'not-found', message: 'Task not found' });
       } else {
         console.log('/DELETE 204 No content');
         res.status(204).send();
       }
     } catch (error) {
       console.error('/DELETE 500 ' + error);
-      res.status(500).send({ messageCode: 500, message: 'Internal server error' });
+      res
+        .status(500)
+        .send({ messageCode: 500, message: 'Internal server error' });
     }
   };
 }
