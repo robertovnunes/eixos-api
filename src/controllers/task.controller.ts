@@ -142,6 +142,17 @@ class TaskController {
    *                  type: string
    *                  description: Task not found
    *                  example: Task not found
+   * 
+   *    delete:
+   *     summary: Delete a task
+   *     description: Delete a task by its ID
+   *     parameters:
+   *     - in: path
+   *      name: id
+   *      schema:
+   *       type: string
+   *       required: true
+   *       description: Task ID
    *
    *   /api/tasks:
    *     get:
