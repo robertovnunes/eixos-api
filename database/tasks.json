@@ -1,13 +1,5 @@
 [
   {
-    "id": "1",
-    "title": "Task 1",
-    "description": "Task 1 description",
-    "completed": false,
-    "priority": "high",
-    "deadline": "2021-12-31"
-  },
-  {
     "id": "2",
     "title": "Task 2",
     "description": "Description 2",

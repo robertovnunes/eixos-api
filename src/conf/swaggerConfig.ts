@@ -1,17 +1,13 @@
 import swaggerJSDoc from "swagger-jsdoc";
-import server from "./server";
+import YAML from "yamljs";
+
+const swaggerDefinition = YAML.load('./src/conf/swaggerDoc.yaml');
 
 const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Minha API',
-      version: '1.0.0',
-      description: 'Documentação da API gerada pelo Swagger',
-    },
-  },
-  apis: ['./src/controllers/*.ts'], // Caminho para os arquivos com anotação JSDoc
+  swaggerDefinition,
+  apis: ['./src/controllers/*.ts'],
 };
+
 
 const swaggerSpec = swaggerJSDoc(options);
 

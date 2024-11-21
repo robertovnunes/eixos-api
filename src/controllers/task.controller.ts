@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import TasksService from '../services/tasks.service';
 import TaskEntity from '../entities/task.entity';
 
+// Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
+
 class TaskController {
   private prefix: string = '/tasks';
   public router: Router;
@@ -12,182 +14,6 @@ class TaskController {
     this.taskService = taskService;
     this.initRoutes();
   }
-
-  /**
-   * @swagger
-   * definitions:
-   *   Task:
-   *     type: object
-   *     properties:
-   *       id:
-   *         type: string
-   *         description: Task ID
-   *         example: 1
-   *       title:
-   *         type: string
-   *         description: Task title
-   *         example: Task 1
-   *       description:
-   *         type: string
-   *         description: Task description
-   *         example: Task 1 description
-   *       completed:
-   *         type: boolean
-   *         description: Task completion status
-   *         example: false
-   *       priority:
-   *         type: string
-   *         description: Task priority
-   *         example: high
-   *       deadline:
-   *         type: string
-   *         format: date
-   *         description: Task deadline
-   *         example: 2021-12-31
-   *   newTask:
-   *     type: object
-   *     properties:
-   *       title:
-   *         type: string
-   *         description: Task title
-   *         example: Task 1
-   *       description:
-   *         type: string
-   *         description: Task description
-   *         example: Task 1 description
-   *       completed:
-   *         type: boolean
-   *         description: Task completion status
-   *         example: false
-   *       priority:
-   *         type: string
-   *         description: Task priority
-   *         example: high
-   *       deadline:
-   *         type: string
-   *         format: date
-   *         description: Task deadline
-   *         example: 2021-12-31
-   *
-   * paths:
-   *
-   *   /api/tasks/{id}:
-   *     get:
-   *       summary: Retrieve a task by ID
-   *       description: Fetch a task by its ID
-   *       parameters:
-   *        - in: path
-   *          name: id
-   *          schema:
-   *           type: string
-   *          required: true
-   *          description: Task ID
-   *       responses:
-   *        200:
-   *         description: A task
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/definitions/Task'
-   *        404:
-   *         description: Task not found
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                  messageCode:
-   *                    type: integer
-   *                    description: 404
-   *                    example: 404
-   *                  message:
-   *                    type: string
-   *                    description: Task not found
-   *                    example: Task not found
-   *     patch:
-   *       summary: Update a task
-   *       description: Update a task by its ID
-   *       parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *           required: true
-   *           description: Task ID
-   *       requestBody:
-   *         required: true
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/definitions/newTask'
-   *       responses:
-   *         200:
-   *           description: A task updated
-   *           content:
-   *             application/json:
-   *               schema:
-   *                 $ref: '#/definitions/Task'
-   *         404:
-   *          description: Task not found
-   *          content:
-   *            application/json:
-   *             schema:
-   *              type: object
-   *              properties:
-   *                messageCode:
-   *                  type: integer
-   *                  description: 404
-   *                  example: 404
-   *                message:
-   *                  type: string
-   *                  description: Task not found
-   *                  example: Task not found
-   * 
-   *    delete:
-   *     summary: Delete a task
-   *     description: Delete a task by its ID
-   *     parameters:
-   *     - in: path
-   *      name: id
-   *      schema:
-   *       type: string
-   *       required: true
-   *       description: Task ID
-   *
-   *   /api/tasks:
-   *     get:
-   *       summary: Retrieve all tasks
-   *       description: Fetch a list of all tasks
-   *       responses:
-   *         200:
-   *           description: A list of tasks
-   *           content:
-   *             application/json:
-   *               schema:
-   *                 type: array
-   *                 items:
-   *                   $ref: '#/definitions/Task'
-   *     post:
-   *       summary: Create a task
-   *       description: Create a new task
-   *       requestBody:
-   *         required: true
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/definitions/newTask'
-   *       responses:
-   *         201:
-   *          description: A task created
-   *          content:
-   *           application/json:
-   *            schema:
-   *             $ref: '#/definitions/Task'
-   *
-   *
-   *
-   *
-   */
 
   private initRoutes() {
     this.router.get(this.prefix, (req: Request, res: Response) => {
@@ -255,12 +81,10 @@ class TaskController {
       if (!req.body.deadline) missingFields.push('deadline');
       if (missingFields.length > 0) {
         console.error('/POST 400 Bad request (missing fields)');
-        res
-          .status(400)
-          .send({
-            messageCode: 'missing-fields',
-            message: 'Missing fields: ' + missingFields.join(', '),
-          });
+        res.status(400).send({
+          messageCode: 'missing-fields',
+          message: 'Missing fields: ' + missingFields.join(', '),
+        });
       } else {
         const task = await this.taskService.create(req.body as TaskEntity);
         console.log('/POST 201 Created');
@@ -306,8 +130,10 @@ class TaskController {
           .status(404)
           .send({ messageCode: 'not-found', message: 'Task not found' });
       } else {
-        console.log('/DELETE 204 No content');
-        res.status(204).send();
+        console.log('/DELETE 200 OK');
+        res
+          .status(200)
+          .send({ messageCode: 'success', message: 'Task deleted' });
       }
     } catch (error) {
       console.error('/DELETE 500 ' + error);
