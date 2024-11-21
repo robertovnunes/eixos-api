@@ -20,7 +20,7 @@ server.use(
 
 //Middleware para documentação usando Swagger
 server.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-        customSiteTitle: 'Minha API',
+        customSiteTitle: 'Eixos API',
         customCssUrl: '/customUI.css'
     })
 );
