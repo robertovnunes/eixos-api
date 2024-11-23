@@ -11,7 +11,7 @@ export default class TaskModel extends BaseModel {
     super(data.id || '');
     this.title = data.title;
     this.description = data.description;
-    this.completed = data.completed;
+    this.completed = false;
     this.priority = data.priority;
     this.deadline = data.deadline;
   }

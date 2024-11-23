@@ -76,7 +76,6 @@ class TaskController {
       let missingFields: string[] = [];
       if (!req.body.title) missingFields.push('title');
       if (!req.body.description) missingFields.push('description');
-      if (!req.body.completed) missingFields.push('completed');
       if (!req.body.priority) missingFields.push('priority');
       if (!req.body.deadline) missingFields.push('deadline');
       if (missingFields.length > 0) {
