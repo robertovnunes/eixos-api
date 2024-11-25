@@ -10,7 +10,7 @@ const PORT = 3000;
 
 const corsOptions = {
   origin: '*', // Permitir acesso de qualquer origem
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Métodos permitidos
   allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
 };
 

@@ -1,7 +1,7 @@
 [
   {
     "id": "2",
-    "title": "Task 2",
+    "title": "Task 22",
     "description": "Description 2",
     "completed": false,
     "priority": "medium",
@@ -16,27 +16,11 @@
     "deadline": "2021-12-31T23:59:59.999Z"
   },
   {
-    "id": "d91da999-910c-490b-9826-f0ae12e55419",
-    "title": "Task 1",
-    "description": "Task 1 description",
-    "completed": false,
-    "priority": "high",
-    "deadline": "2021-12-31"
-  },
-  {
     "id": "23ea04fb-a7d5-40e1-a6bc-8a31a7bc7946",
     "title": "Task 1",
     "description": "Task 1 description",
     "completed": false,
     "priority": "high",
     "deadline": "2021-12-31"
-  },
-  {
-    "id": "3ddd3e6a-3a70-48b8-8711-5a92db90b17b",
-    "title": "a",
-    "description": "a",
-    "completed": false,
-    "priority": "a",
-    "deadline": "2024-11-28"
   }
 ]
