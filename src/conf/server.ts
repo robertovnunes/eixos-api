@@ -29,8 +29,8 @@ server.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // Middleware para CORS
 const corsOptions = {
   origin: '*', // Permitir acesso de qualquer origem
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Métodos permitidos
-  allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Métodos permitidos
+  //allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
 };
 
 server.use(cors(corsOptions));

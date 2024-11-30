@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/controllers/tasks",
+      "dest": "api/tasks"
+    },
+    {
+      "src": "/docs",
+      "dest": "/api/docs"
+    }
+  ]
+}

@@ -14,13 +14,5 @@
     "completed": false,
     "priority": "media",
     "deadline": "2024-12-31"
-  },
-  {
-    "id": "4886d9c3-6c72-4030-af2c-fecd18acfce7",
-    "title": "ad",
-    "description": "ad",
-    "completed": false,
-    "priority": "media",
-    "deadline": "2024-12-31"
   }
 ]
