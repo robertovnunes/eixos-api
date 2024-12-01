@@ -36,25 +36,24 @@ class TaskController {
 
   private getAllTasks = async (req: Request, res: Response) => {
     try {
-      const tasks = await this.taskService.findAll();
+      const tasks = await this.taskService.getTasks();
       if (tasks.length === 0) {
-        console.error('/GET 204 Empty list');
-        res
-          .status(204)
-          .send({ messageCode: 204, message: 'No tasks in database' });
+        console.error('/GET/tasks 204 Empty list');
+        res.status(204)
+          .send({ messageCode: 'empty_list', message: 'No tasks in database' });
       } else {
-        console.log('/GET 200 OK');
+        console.log('/GET/tasks 200 OK');
         res.status(200).send(tasks);
       }
     } catch (error) {
-      console.error('/GET 404 not found');
-      res.status(404).send({ messageCode: 404, message: 'Tasks not found' });
+      console.error(`/GET 500 ${error}`);
+      res.status(500).send({ messageCode: 'server_error', message: 'internal server error' });
     }
   };
 
   private getTaskById = async (req: Request, res: Response) => {
     try {
-      const task = await this.taskService.findById(req.params.id);
+      const task = await this.taskService.getTaskById(req.params.id);
       if (!task) {
         console.error('/GET 404 not found');
         res
@@ -86,7 +85,7 @@ class TaskController {
           message: 'Missing fields: ' + missingFields.join(', '),
         });
       } else {
-        const task = await this.taskService.create(req.body as TaskEntity);
+        const task = await this.taskService.createTask(req.body as TaskEntity);
         console.log('/POST 201 Created');
         res.status(201).send(task);
       }
@@ -100,7 +99,7 @@ class TaskController {
 
   private updateTask = async (req: Request, res: Response) => {
     try {
-      const task = await this.taskService.update(
+      const task = await this.taskService.updateTask(
         req.params.id,
         req.body as Partial<TaskEntity>,
       );
@@ -123,7 +122,7 @@ class TaskController {
 
   private deleteTask = async (req: Request, res: Response) => {
     try {
-      await this.taskService.delete(req.params.id);
+      await this.taskService.deleteTask(req.params.id);
       
       return new SuccessResult({
         msg: Result.transformRequestOnMsg(req),

@@ -1,5 +1,6 @@
 import TaskModel, {ITaskModel} from "../models/task.model";
 import BaseRepository from "./base.repository";
+import MongoDBConnection from "../conf/database";
 
 export default class TasksRepository extends BaseRepository<ITaskModel> {
   constructor() {
@@ -12,6 +13,7 @@ export default class TasksRepository extends BaseRepository<ITaskModel> {
    * @returns Lista de tarefas concluídas.
    */
   async findCompletedTasks(): Promise<ITaskModel[]> {
+    await MongoDBConnection.getInstance(); // Garantir que o banco está conectado
     return this.model.find({ completed: true }).exec();
   }
 
@@ -21,6 +23,7 @@ export default class TasksRepository extends BaseRepository<ITaskModel> {
    * @returns Lista de tarefas com a prioridade fornecida.
    */
   async findTasksByPriority(priority: string): Promise<ITaskModel[]> {
+    await MongoDBConnection.getInstance();
     return this.model.find({ priority }).exec();
   }
 
@@ -29,6 +32,7 @@ export default class TasksRepository extends BaseRepository<ITaskModel> {
    * @returns Lista de tarefas com prazos vencidos.
    */
   async findOverdueTasks(): Promise<ITaskModel[]> {
+    await MongoDBConnection.getInstance();
     const currentDate = new Date().toISOString();
     return this.model.find({ deadline: { $lt: currentDate } }).exec();
   }
@@ -39,7 +43,8 @@ export default class TasksRepository extends BaseRepository<ITaskModel> {
    * @returns Lista de tarefas que correspondem ao termo.
    */
   async findTasksByTitle(term: string): Promise<ITaskModel[]> {
-    const regex = new RegExp(term, 'i'); // Busca case-insensitive.
+    await MongoDBConnection.getInstance();
+    const regex = new RegExp(term, 'i'); // Busca case-insensitive
     return this.model.find({ title: { $regex: regex } }).exec();
   }
 }

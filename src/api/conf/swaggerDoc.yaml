@@ -9,59 +9,61 @@ tags:
    description: Operações relacionadas a tarefas
  - name: Users
    description: Operações relacionadas a usuários
-definitions:
-  Task:
-    type: object
-    properties:
-      id:
-        type: string
-        description: Task ID
-        example: 1
-      title:
-        type: string
-        description: Task title
-        example: Task 1
-      description:
-        type: string
-        description: Task description
-        example: Task 1 description
-      completed:
-        type: boolean
-        description: Task completion status
-        example: false
-      priority:
-        type: string
-        description: Task priority
-        example: high
-      deadline:
-        type: string
-        format: date
-        description: Task deadline
-        example: 2021-12-31
-  newTask:
-    type: object
-    properties:
-      title:
-        type: string
-        description: Task title
-        example: Task 1
-      description:
-        type: string
-        description: Task description
-        example: Task 1 description
-      completed:
-        type: boolean
-        description: Task completion status
-        example: false
-      priority:
-        type: string
-        description: Task priority
-        example: high
-      deadline:
-        type: string
-        format: date
-        description: Task deadline
-        example: 2021-12-31
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Task ID
+          example: 1
+        title:
+          type: string
+          description: Task title
+          example: Task 1
+        description:
+          type: string
+          description: Task description
+          example: Task 1 description
+        completed:
+          type: boolean
+          description: Task completion status
+          example: false
+        priority:
+          type: string
+          description: Task priority
+          example: high
+        deadline:
+          type: string
+          format: date
+          description: Task deadline
+          example: 2021-12-31
+
+    NewTask:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Task title
+          example: Task 1
+        description:
+          type: string
+          description: Task description
+          example: Task 1 description
+        completed:
+          type: boolean
+          description: Task completion status
+          example: false
+        priority:
+          type: string
+          description: Task priority
+          example: high
+        deadline:
+          type: string
+          format: date
+          description: Task deadline
+          example: 2021-12-31
 
 paths:
   /api/tasks/{id}:
@@ -83,7 +85,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: #/definitions/Task
+                $ref: '#/components/schemas/Task'
         404:
           description: Task not found
           content:
@@ -117,14 +119,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: #/definitions/newTask
+              $ref: '#/components/schemas/NewTask'
       responses:
         200:
           description: A task updated  
           content:
             application/json:
               schema:
-                $ref: #/definitions/Task
+                $ref: '#/components/schemas/Task'
         404:
           description: Task not found  
           content:
@@ -199,7 +201,7 @@ paths:
               schema :
                 type : array 
                 items :
-                  $ref : #/definitions/Task 
+                  $ref : '#/components/schemas/Task' 
 
     post :
       tags :
@@ -211,11 +213,11 @@ paths:
         content :
            application/json :
              schema :
-               $ref : #/definitions/newTask 
+               $ref : '#/components/schemas/NewTask'
       responses :
          201 :
            description : A task created 
            content :
              application/json :
                schema :
-                 $ref : #/definitions/Task 
+                 $ref : '#/components/schemas/Task' 

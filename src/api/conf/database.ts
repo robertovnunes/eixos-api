@@ -14,6 +14,7 @@ export default class MongoDBConnection {
 
   static async getInstance(): Promise<MongoDBConnection> {
     if (!MongoDBConnection.instance) {
+      console.log('Criando uma nova conexão com o MongoDB...');
       MongoDBConnection.instance = new MongoDBConnection(); // Corrigido
       await MongoDBConnection.instance.connect();
     }
