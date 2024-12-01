@@ -1,7 +1,7 @@
 import { Model, Document } from 'mongoose';
 
 export default abstract class BaseRepository<T extends Document> {
-  private model: Model<T>;
+  model: Model<T>;
 
   constructor(model: Model<T>) {
     this.model = model;

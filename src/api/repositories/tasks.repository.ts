@@ -1,29 +1,45 @@
-import TaskEntity from "../entities/task.entity";
+import TaskModel, {ITaskModel} from "../models/task.model";
 import BaseRepository from "./base.repository";
 
-export default class TasksRepository extends BaseRepository<TaskEntity> {
-
+export default class TasksRepository extends BaseRepository<ITaskModel> {
   constructor() {
-    super('tasks');
+    const taskModel = new TaskModel().model;
+    super(taskModel);
   }
 
-    async findAll(): Promise<TaskEntity[]> {
-        return await super.findAll();
-    }
+  /**
+   * Busca todas as tarefas que estão marcadas como concluídas.
+   * @returns Lista de tarefas concluídas.
+   */
+  async findCompletedTasks(): Promise<ITaskModel[]> {
+    return this.model.find({ completed: true }).exec();
+  }
 
-    async findById(id: string): Promise<TaskEntity | null> {
-        return await super.findOne((item) => item.id === id);
-    }
+  /**
+   * Busca tarefas com base na prioridade fornecida.
+   * @param priority - A prioridade a ser filtrada (Ex: 'Alta', 'Média').
+   * @returns Lista de tarefas com a prioridade fornecida.
+   */
+  async findTasksByPriority(priority: string): Promise<ITaskModel[]> {
+    return this.model.find({ priority }).exec();
+  }
 
-    async create(task: TaskEntity): Promise<TaskEntity> {
-        return await super.add(task);
-    }
+  /**
+   * Busca tarefas cujo prazo (deadline) já passou.
+   * @returns Lista de tarefas com prazos vencidos.
+   */
+  async findOverdueTasks(): Promise<ITaskModel[]> {
+    const currentDate = new Date().toISOString();
+    return this.model.find({ deadline: { $lt: currentDate } }).exec();
+  }
 
-    async updateTask(id: string, updatedTask: Partial<TaskEntity>): Promise<TaskEntity | null> {
-        return await super.update((item) => item.id === id, updatedTask);
-    }
-
-    async deleteTask(id: string): Promise<void> {
-        await super.delete((item) => item.id !== id);
-    }
+  /**
+   * Busca todas as tarefas com título parcialmente correspondente ao termo fornecido.
+   * @param term - Parte do título a ser pesquisada.
+   * @returns Lista de tarefas que correspondem ao termo.
+   */
+  async findTasksByTitle(term: string): Promise<ITaskModel[]> {
+    const regex = new RegExp(term, 'i'); // Busca case-insensitive.
+    return this.model.find({ title: { $regex: regex } }).exec();
+  }
 }
