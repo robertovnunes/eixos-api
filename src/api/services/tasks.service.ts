@@ -12,7 +12,7 @@ class TasksService {
 
   async createTask(data: Partial<TaskEntity>): Promise<TaskEntity> {
     const task = await this.tasksRepository.create(data);
-    return new TaskEntity(data);
+    return new TaskEntity(task);
   }
 
   async getTaskById(id: string): Promise<TaskEntity | null> {
