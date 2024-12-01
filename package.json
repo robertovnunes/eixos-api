@@ -2,9 +2,9 @@
   "name": "eixos-api",
   "version": "1.0.0",
   "description": "API para ferramenta de tdah",
-  "main": "src/app.ts",
+  "main": "./src/app.ts",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node dist/src/app.js",
     "build": "tsc",
     "dev": "nodemon src/app.ts"
   },
@@ -15,8 +15,11 @@
     "@types/swagger-ui-express": "^4.1.7",
     "cnl-api": "file:",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "eixos-api": "file:",
     "express": "^4.21.1",
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.0.3",
@@ -27,6 +30,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.0",
     "@types/yamljs": "^0.2.34",
+    "cpx": "^1.5.0",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"

@@ -1,0 +1,59 @@
+/* Definir fundo escuro */
+body {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Ajustar o fundo do painel */
+.swagger-ui .topbar {
+    background-color: #1e1e1e !important;
+}
+
+.swagger-ui .opblock-section-header {
+    background-color: #1e1e1e !important;
+    border: #1e1e1e !important;
+}
+
+.swagger-ui .info,
+.swagger-ui .opblock,
+.swagger-ui .opblock-summary {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #333333 !important;
+}
+
+/* Alterar cor dos textos */
+.swagger-ui .info .title,
+.swagger-ui .opblock-summary-path,
+.swagger-ui .opblock-summary-description,
+.swagger-ui .title {
+    color: #929292 !important;
+}
+.swagger-ui .opblock-summary-method {
+    color: #ffffff !important;
+}
+
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type {
+    color: #ffcc00 !important;
+}
+
+/* Ajustar botões */
+.swagger-ui .btn {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+    border-color: #666666 !important;
+}
+
+/* Links */
+.swagger-ui a {
+    color: #66ccff !important;
+}
+
+/* Campos de entrada */
+.swagger-ui input,
+.swagger-ui textarea {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+    border: 1px solid #666666 !important;
+}

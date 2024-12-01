@@ -1,12 +1,11 @@
-import express, {Request, Response} from "express";
+import express, { Request, Response } from 'express';
 
-import server from "./conf/server";
-import routes from './routes';
+import server from './api/conf/server';
+import routes from './api/routes';
 
 const app = server;
 
-const PORT = 3000;
-
+const PORT = process.env.PORT || 3000;
 
 app.use(routes);
 
