@@ -14,6 +14,11 @@ server.use(express.json());
 // Middleware para lidar com formulários
 server.use(express.urlencoded({ extended: false }));
 
+//Redirecionamento para a documentação
+server.get('/', (req, res) => {
+  res.redirect('/api/docs');
+});
+
 // Middleware para lidar com CSS
 server.use('/customUI.css', express.static(path.join(__dirname, 'customUI.css')));
 
