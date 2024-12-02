@@ -11,4 +11,6 @@ app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`If production, server is running on https://eixos-api.onrender.com`);
+  console.log('See the API documentation at https://eixos-api.onrender.com/api/docs');
 });

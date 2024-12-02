@@ -1,11 +1,18 @@
 import BaseModel, { IBaseModel } from "./base.model";
 
+interface Subtask {
+    description: string;
+    completed: boolean;
+}
+
 export interface ITaskModel extends IBaseModel {
   title: string;
   description: string;
   completed: boolean;
   priority: string;
   deadline?: string;
+  subtasks?: Subtask[];
+
 }
 
 export default class TaskModel extends BaseModel<ITaskModel> {
@@ -16,6 +23,7 @@ export default class TaskModel extends BaseModel<ITaskModel> {
       completed: { type: Boolean, default: false },
       priority: { type: String, required: true },
       deadline: { type: String, required: false },
+      subtasks: { type: Array, required: false }
     });
   }
 }
