@@ -22,8 +22,8 @@ export default class TaskEntity extends BaseEntity {
     this.completed = data.completed || false;
     this.priority = data.priority || '';
     this.deadline = data.deadline;
-    this.isImportant = data.isImportant;
-    this.isUrgent = data.isUrgent;
+    this.isImportant = data.isImportant || false;
+    this.isUrgent = data.isUrgent || false;
     this.subtasks = data.subtasks || [];
   }
 }
