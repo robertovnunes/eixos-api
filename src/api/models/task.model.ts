@@ -11,7 +11,9 @@ export interface ITaskModel extends IBaseModel {
   completed: boolean;
   priority: string;
   deadline?: string;
-  subtasks?: Subtask[];
+  isImportant: boolean;
+  isUrgent: boolean;
+  subtasks: Subtask[];
 
 }
 
@@ -23,7 +25,9 @@ export default class TaskModel extends BaseModel<ITaskModel> {
       completed: { type: Boolean, default: false },
       priority: { type: String, required: true },
       deadline: { type: String, required: false },
-      subtasks: { type: Array, required: false }
+      isImportant: { type: Boolean, required: true },
+      isUrgent: { type: Boolean, required: true },
+      subtasks: { type: Array, default: [] }
     });
   }
 }

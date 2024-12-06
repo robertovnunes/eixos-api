@@ -77,7 +77,6 @@ class TaskController {
       if (!req.body.title) missingFields.push('title');
       if (!req.body.description) missingFields.push('description');
       if (!req.body.priority) missingFields.push('priority');
-      if (!req.body.deadline) missingFields.push('deadline');
       if (missingFields.length > 0) {
         console.error('/POST 400 Bad request (missing fields)');
         res.status(400).send({
@@ -85,7 +84,9 @@ class TaskController {
           message: 'Missing fields: ' + missingFields.join(', '),
         });
       } else {
-        const task = await this.taskService.createTask(req.body as TaskEntity);
+        const newTask = new TaskEntity(req.body); 
+        const task = await this.taskService.createTask(newTask);
+        console.log('task criada: ',task);
         console.log('/POST 201 Created');
         res.status(201).send(task);
       }
@@ -119,6 +120,7 @@ class TaskController {
         .send({ messageCode: 500, message: 'Internal server error' });
     }
   };
+
 
   private deleteTask = async (req: Request, res: Response) => {
     try {

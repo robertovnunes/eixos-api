@@ -31,6 +31,7 @@ export default abstract class BaseRepository<T extends Document> {
    */
   async create(data: Partial<T>): Promise<T> {
     await MongoDBConnection.getInstance(); // Garantir que o banco está conectado
+    console.log('repositorio ', data);
     const record = new this.model(data);
     return await record.save();
   }

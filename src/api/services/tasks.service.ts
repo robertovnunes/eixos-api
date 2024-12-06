@@ -3,6 +3,11 @@ import TaskModel from "../models/task.model";
 import { HttpNotFoundError } from '../utils/errors/http.error';
 import TasksRepository from '../repositories/tasks.repository';
 
+interface Subtask {
+  description: string;
+  completed: boolean;
+}
+
 class TasksService {
   private tasksRepository: TasksRepository;
 
@@ -23,6 +28,7 @@ class TasksService {
       completed: taskModel.completed,
       priority: taskModel.priority,
       deadline: taskModel.deadline,
+      subtasks: taskModel.subtasks,
     });
   }
 
@@ -32,6 +38,7 @@ class TasksService {
   }
 
   async createTask(data: Partial<TaskEntity>): Promise<TaskEntity> {
+    console.log('data: ',data);
     const task = await this.tasksRepository.create(data);
     return this.toEntity(task);
   }

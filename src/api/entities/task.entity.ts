@@ -11,7 +11,9 @@ export default class TaskEntity extends BaseEntity {
   public completed: boolean;
   public priority: string;
   public deadline?: string;
-  public subtasks?: Subtask[];
+  public isImportant: boolean;
+  public isUrgent: boolean;
+  public subtasks: Subtask[];
 
   constructor(data: Partial<TaskEntity>) {
     super(data);
@@ -20,6 +22,8 @@ export default class TaskEntity extends BaseEntity {
     this.completed = data.completed || false;
     this.priority = data.priority || '';
     this.deadline = data.deadline;
-    this.subtasks = data.subtasks;
+    this.isImportant = data.isImportant;
+    this.isUrgent = data.isUrgent;
+    this.subtasks = data.subtasks || [];
   }
 }
