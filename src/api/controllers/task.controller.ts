@@ -84,9 +84,7 @@ class TaskController {
           message: 'Missing fields: ' + missingFields.join(', '),
         });
       } else {
-        const newTask = new TaskEntity(req.body); 
-        const task = await this.taskService.createTask(newTask);
-        console.log('task criada: ',task);
+        const task = await this.taskService.createTask(req.body as Partial<TaskEntity>);
         console.log('/POST 201 Created');
         res.status(201).send(task);
       }

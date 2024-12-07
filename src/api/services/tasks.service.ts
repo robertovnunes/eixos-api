@@ -28,6 +28,8 @@ class TasksService {
       completed: taskModel.completed,
       priority: taskModel.priority,
       deadline: taskModel.deadline,
+      isImportant: taskModel.isImportant,
+      isUrgent: taskModel.isUrgent,
       subtasks: taskModel.subtasks,
     });
   }
@@ -38,7 +40,6 @@ class TasksService {
   }
 
   async createTask(data: Partial<TaskEntity>): Promise<TaskEntity> {
-    console.log('data: ',data);
     const task = await this.tasksRepository.create(data);
     return this.toEntity(task);
   }
