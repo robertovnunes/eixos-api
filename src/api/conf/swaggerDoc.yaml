@@ -1,14 +1,13 @@
-
 openapi: 3.0.0
 info:
   title: Eixos API
   version: 1.0.0
   description: Documentação da API gerada pelo Swagger
-tags: 
- - name: Tasks
-   description: Operações relacionadas a tarefas
- - name: Users
-   description: Operações relacionadas a usuários
+tags:
+  - name: Tasks
+    description: Operações relacionadas a tarefas
+  - name: Users
+    description: Operações relacionadas a usuários
 components:
   schemas:
     Task:
@@ -31,15 +30,42 @@ components:
           description: Task completion status
           example: false
         priority:
-          type: string
-          description: Task priority
-          example: high
+          type: object
+          properties:
+            value:
+              type: integer
+              description: Task priority value
+              example: 1
+            label:
+              type: string
+              description: Task priority name
+              example: Alta
         deadline:
           type: string
           format: date
           description: Task deadline
           example: 2021-12-31
-
+        isImportant:
+          type: boolean
+          description: Task importance status
+          example: true
+        isUrgent:
+          type: boolean
+          description: Task urgency status
+          example: true
+        subtasks:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+                description: Subtask description
+                example: Subtask 1 description
+              completed:
+                type: boolean
+                description: Subtask completion status
+                example: false
     NewTask:
       type: object
       properties:
@@ -56,14 +82,42 @@ components:
           description: Task completion status
           example: false
         priority:
-          type: string
-          description: Task priority
-          example: high
+          type: object
+          properties:
+            value:
+              type: integer
+              description: Task priority value
+              example: 1
+            label:
+              type: string
+              description: Task priority name
+              example: Alta
         deadline:
           type: string
           format: date
           description: Task deadline
           example: 2021-12-31
+        isImportant:
+          type: boolean
+          description: Task importance status
+          example: true
+        isUrgent:
+          type: boolean
+          description: Task urgency status
+          example: true
+        subtasks:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+                description: Subtask description
+                example: Subtask 1 description
+              completed:
+                type: boolean
+                description: Subtask completion status
+                example: false
 
 paths:
   /api/tasks/{id}:
@@ -113,111 +167,111 @@ paths:
           schema:
             type: string
             required: true
-            description: Task ID  
+            description: Task ID
       requestBody:
-        required: true  
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/NewTask'
       responses:
         200:
-          description: A task updated  
+          description: A task updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
         404:
-          description: Task not found  
+          description: Task not found
           content:
             application/json:
               schema:
-                type: object  
+                type: object
                 properties:
                   messageCode:
-                    type: string  
-                    description: not-found  
-                    example: task-not-found  
+                    type: string
+                    description: not-found
+                    example: task-not-found
                   message:
-                    type: string  
-                    description: Task not found  
-                    example: Task not found  
+                    type: string
+                    description: Task not found
+                    example: Task not found
 
     delete:
       tags:
-        - Tasks 
-      summary: Delete a task  
-      description: Delete a task by its ID  
+        - Tasks
+      summary: Delete a task
+      description: Delete a task by its ID
       parameters:
-        - in: path  
-          name: id  
+        - in: path
+          name: id
           schema:
-            type: string  
-            required: true  
-            description: Task ID  
+            type: string
+            required: true
+            description: Task ID
       responses:
         200:
-          description: Task deleted  
+          description: Task deleted
           content:
             application/json:
               schema:
-                type: object  
+                type: object
                 properties:
                   messageCode:
-                    type: string  
-                    description: success  
-                    example: success  
+                    type: string
+                    description: success
+                    example: success
                   message:
-                    type: string  
-                    description: Task deleted  
-                    example: Task deleted  
+                    type: string
+                    description: Task deleted
+                    example: Task deleted
         404:
-          description: Task not found  
+          description: Task not found
           content:
             application/json:
               schema:
-                type : object 
-                properties :
-                  messageCode :
-                    type : string 
-                    description : not-found 
-                    example : task-not-found 
-                  message :
-                    type : string 
-                    description : Task not found 
-                    example : Task not found 
+                type: object
+                properties:
+                  messageCode:
+                    type: string
+                    description: not-found
+                    example: task-not-found
+                  message:
+                    type: string
+                    description: Task not found
+                    example: Task not found
 
   /api/tasks:
-    get :
-      tags :
-        - Tasks 
-      summary : Retrieve all tasks 
-      description : Fetch a list of all tasks 
-      responses :
-        200 :
-          description : A list of tasks 
-          content :
-            application/json :
-              schema :
-                type : array 
-                items :
-                  $ref : '#/components/schemas/Task' 
+    get:
+      tags:
+        - Tasks
+      summary: Retrieve all tasks
+      description: Fetch a list of all tasks
+      responses:
+        200:
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
 
-    post :
-      tags :
-        - Tasks 
-      summary : Create a task 
-      description : Create a new task 
-      requestBody :
-        required : true 
-        content :
-           application/json :
-             schema :
-               $ref : '#/components/schemas/NewTask'
-      responses :
-         201 :
-           description : A task created 
-           content :
-             application/json :
-               schema :
-                 $ref : '#/components/schemas/Task' 
+    post:
+      tags:
+        - Tasks
+      summary: Create a task
+      description: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTask'
+      responses:
+        201:
+          description: A task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'

@@ -17,7 +17,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "eixos-api": "file:",
-    "express": "^4.21.1",
     "mongodb": "^6.11.0",
     "mongoose": "^8.8.3",
     "react-router-dom": "^6.28.0",
@@ -31,8 +30,9 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.0",
     "@types/yamljs": "^0.2.34",
+    "express": "^4.21.2",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   }
 }
