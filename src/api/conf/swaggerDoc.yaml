@@ -21,16 +21,19 @@ components:
           type: string
           description: Task title
           example: Task 1
+          required: true
         description:
           type: string
           description: Task description
           example: Task 1 description
+          required: true
         completed:
           type: boolean
           description: Task completion status
           example: false
         priority:
           type: object
+          required: true
           properties:
             value:
               type: integer
@@ -49,10 +52,12 @@ components:
           type: boolean
           description: Task importance status
           example: true
+          required: true
         isUrgent:
           type: boolean
           description: Task urgency status
           example: true
+          required: true
         subtasks:
           type: array
           items:
@@ -73,16 +78,19 @@ components:
           type: string
           description: Task title
           example: Task 1
+          required: true
         description:
           type: string
           description: Task description
           example: Task 1 description
+          required: true
         completed:
           type: boolean
           description: Task completion status
           example: false
         priority:
           type: object
+          required: true
           properties:
             value:
               type: integer
@@ -101,10 +109,12 @@ components:
           type: boolean
           description: Task importance status
           example: true
+          required: true
         isUrgent:
           type: boolean
           description: Task urgency status
           example: true
+          required: true
         subtasks:
           type: array
           items:

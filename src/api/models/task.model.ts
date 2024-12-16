@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import BaseModel, { IBaseModel } from "./base.model";
 
 interface Subtask {
@@ -11,6 +12,7 @@ interface Priority {
 }
 
 export interface ITaskModel extends IBaseModel {
+  _id: Types.ObjectId;
   title: string;
   description: string;
   completed: boolean;
@@ -25,6 +27,7 @@ export interface ITaskModel extends IBaseModel {
 export default class TaskModel extends BaseModel<ITaskModel> {
   constructor() {
     super('Task', {
+
       title: { type: String, required: true },
       description: { type: String, required: true },
       completed: { type: Boolean, default: false },
