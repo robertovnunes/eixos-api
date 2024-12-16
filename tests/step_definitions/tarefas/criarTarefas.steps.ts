@@ -27,7 +27,7 @@ defineFeature(feature, test => {
           async (title) => {
             const task = await mockTaskRepository.findTasksByTitle(title);
             if (task) {
-              await mockTaskRepository.delete();
+              await mockTaskRepository.delete(task[0]._id.toString());
             }
           },
         );

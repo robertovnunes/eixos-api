@@ -1,6 +1,7 @@
-import mongoose, { Schema, Model, Document } from 'mongoose';
+import mongoose, { Schema, Model, Document, Types } from 'mongoose';
 
 export interface IBaseModel extends Document {
+  _id: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -15,6 +16,7 @@ export default abstract class BaseModel<T extends IBaseModel> {
     this.schema = new Schema(
       {
         ...schemaDefinition,
+        _id: { type: Schema.Types.ObjectId, auto: true },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now },
       },
