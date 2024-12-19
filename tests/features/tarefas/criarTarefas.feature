@@ -9,7 +9,7 @@ Feature: Serviço para Gerenciar Tarefas
 
   Scenario: Criar uma tarefa válida via serviço
     Given não existe uma tarefa com o título "Finalizar relatório mensal"
-    And o payload da requisição contém:
+    When o cliente faz a requisição "POST" para "/api/tasks" and o payload
       """
       {
       "title": "Finalizar relatório mensal",
@@ -25,7 +25,6 @@ Feature: Serviço para Gerenciar Tarefas
       ]
       }
       """
-    When o cliente faz a requisição POST para "/api/tasks"
     Then o serviço deve retornar o código de status 201
     And o corpo da resposta deve conter:
       """

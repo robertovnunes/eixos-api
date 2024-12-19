@@ -8,6 +8,4 @@ const PORT = process.env.PORT || 3000;
 
 app.use(routes);
 
-const request = supertest(app);
-
-export { app, request, PORT };
+export { app, PORT };

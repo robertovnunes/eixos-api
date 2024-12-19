@@ -1,5 +1,5 @@
 import TaskEntity from "../entities/task.entity";
-import TaskModel from "../models/task.model";
+import ITaskModel from "../models/task.model";
 import { HttpNotFoundError } from '../utils/errors/http.error';
 import TasksRepository from '../repositories/tasks.repository';
 
@@ -22,7 +22,7 @@ class TasksService {
    */
   private toEntity(taskModel: any): TaskEntity {
     return new TaskEntity({
-      _id: taskModel._id?.toString(), // Converte ObjectId para string.
+      _id: taskModel._id, // Converte ObjectId para string.
       title: taskModel.title,
       description: taskModel.description,
       completed: taskModel.completed,

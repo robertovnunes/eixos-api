@@ -1,5 +1,6 @@
+import { Types } from "mongoose";
 export default abstract class BaseEntity {
-  public _id?: string;
+  public _id?: Types.ObjectId;
   public createdAt?: Date;
   public updatedAt?: Date;
 
