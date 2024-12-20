@@ -21,3 +21,5 @@ class TimerEntity extends BaseEntity {
     }
   }
 }
+
+export default TimerEntity
