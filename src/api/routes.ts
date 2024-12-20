@@ -15,7 +15,10 @@ const app = Express();
 
 app.use(
   '/api',
-  [new TaskController(router, injector.getService(TaskService)).router, new TimerController(router, injector.getService(TimerService)).router],
+  [
+    new TaskController(router, injector.getService(TaskService)).router, 
+    new TimerController(router, injector.getService(TimerService)).router,
+  ]
 );
 
 
