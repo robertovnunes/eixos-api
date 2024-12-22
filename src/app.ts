@@ -1,5 +1,3 @@
-import express, { Request, Response } from 'express';
-
 import server from './api/conf/server';
 import routes from './api/routes';
 
