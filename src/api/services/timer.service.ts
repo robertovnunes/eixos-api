@@ -15,13 +15,12 @@ class TimerService {
      */
     private toEntity(timerModel: any): TimerEntity {
         return new TimerEntity({
-            _id: timerModel._id, // Converte ObjectId para string.
-            name: timerModel.name,
-            focusTime: timerModel.focusTime,
-            breakTime: timerModel.breakTime,
-            isRunning: timerModel.isRunning,
-            loops: timerModel.loops,
-            longBreakTime: timerModel.longBreakTime,
+          _id: timerModel._id, // Converte ObjectId para string.
+          name: timerModel.name,
+          focusTime: timerModel.focusTime,
+          shortBreakTime: timerModel.shortBreakTime,
+          loops: timerModel.loops,
+          longBreakTime: timerModel.longBreakTime,
         });
 
     }

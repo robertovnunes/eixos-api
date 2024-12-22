@@ -3,7 +3,7 @@ import BaseEntity from "./base.entity";
 class TimerEntity extends BaseEntity {
   public name: string;
   public focusTime: number;
-  public breakTime: number;
+  public shortBreakTime: number;
   public loops: number;
   public longBreakTime?: number;
 
@@ -12,7 +12,7 @@ class TimerEntity extends BaseEntity {
     super(data);
     this.name = data.name || '';
     this.focusTime = data.focusTime || 0;
-    this.breakTime = data.breakTime || 0;
+    this.shortBreakTime = data.shortBreakTime || 0;
     this.loops = data.loops || 0;
     if(data.longBreakTime){
       this.longBreakTime = data.longBreakTime;
