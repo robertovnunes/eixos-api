@@ -3,6 +3,7 @@ import TimerService from "../services/timer.service";
 import TimerEntity from "../entities/timer.entity";
 import { Result, SuccessResult } from "../utils/result";
 import { HttpError } from "../utils/errors/http.error";
+import { authenticateToken } from "./autenticateToken";
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
@@ -10,29 +11,51 @@ class TimerController {
   private prefix: string = "/timers";
   public router: Router;
   private timerService: TimerService;
+  private authToken: any;
 
   constructor(router: Router, timerService: TimerService) {
     this.router = router;
     this.timerService = timerService;
+    this.authToken = authenticateToken;
     this.initRoutes();
   }
 
   private initRoutes() {
-    this.router.get(this.prefix, (req: Request, res: Response) => {
-      this.getAllTimers(req, res);
-    });
-    this.router.get(`${this.prefix}/:id`, (req: Request, res: Response) => {
-      this.getTimerById(req, res);
-    });
-    this.router.post(this.prefix, (req: Request, res: Response) => {
-      this.createTimer(req, res);
-    });
-    this.router.patch(`${this.prefix}/:id`, (req: Request, res: Response) => {
-      this.updateTimer(req, res);
-    });
-    this.router.delete(`${this.prefix}/:id`, (req: Request, res: Response) => {
-      this.deleteTimer(req, res);
-    });
+    this.router.get(
+      this.prefix,
+      this.authToken,
+      (req: Request, res: Response) => {
+        this.getAllTimers(req, res);
+      },
+    );
+    this.router.get(
+      `${this.prefix}/:id`,
+      this.authToken,
+      (req: Request, res: Response) => {
+        this.getTimerById(req, res);
+      },
+    );
+    this.router.post(
+      this.prefix,
+      this.authToken,
+      (req: Request, res: Response) => {
+        this.createTimer(req, res);
+      },
+    );
+    this.router.patch(
+      `${this.prefix}/:id`,
+      this.authToken,
+      (req: Request, res: Response) => {
+        this.updateTimer(req, res);
+      },
+    );
+    this.router.delete(
+      `${this.prefix}/:id`,
+      this.authToken,
+      (req: Request, res: Response) => {
+        this.deleteTimer(req, res);
+      },
+    );
   }
 
   private getAllTimers = async (req: Request, res: Response) => {

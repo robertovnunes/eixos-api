@@ -2,6 +2,7 @@ import e, { Router, Request, Response } from 'express';    // Importando Router,
 import UserService from '../services/user.service';
 import UserEntity from '../entities/user.entity';
 import { Result, SuccessResult } from '../utils/result';
+import bcrypt from 'bcrypt';    // Importando bcrypt para criptografia de senha
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
@@ -113,7 +114,15 @@ class UserController {
 
     private createUser = async (req: Request, res: Response) => {
         try {
-            const user = await this.userService.createUser(req.body);
+            const { name, email, password, phone, defaultTimer, theme } = req.body;
+            const userExists = await this.userService.getUserByEmail(email);
+            if (userExists) {
+                console.error('/POST 409 Conflict');
+                res.status(409).send({ messageCode: 'conflict', message: 'User already exists' });
+                return;
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const user = await this.userService.createUser({ name, email, password: hashedPassword , phone, defaultTimer, theme });
             console.log('/POST 201 Created');
             res.status(201).send(user);
         } catch (error) {

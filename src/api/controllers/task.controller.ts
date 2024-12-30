@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import TasksService from '../services/tasks.service';
 import TaskEntity from '../entities/task.entity';
 import { Result, SuccessResult } from '../utils/result';
+import { authenticateToken } from './autenticateToken';
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
@@ -9,27 +10,44 @@ class TaskController {
   private prefix: string = '/tasks';
   public router: Router;
   private taskService: TasksService;
+  private autenticateToken: any;
 
   constructor(router: Router, taskService: TasksService) {
     this.router = router;
     this.taskService = taskService;
+    this.autenticateToken = authenticateToken;
     this.initRoutes();
   }
 
   private initRoutes() {
-    this.router.get(this.prefix, (req: Request, res: Response) => {
-      this.getAllTasks(req, res);
-    });
-    this.router.get(`${this.prefix}/:id`, (req: Request, res: Response) => {
-      this.getTaskById(req, res);
-    });
-    this.router.post(this.prefix, (req: Request, res: Response) => {
-      this.createTask(req, res);
-    });
-    this.router.patch(`${this.prefix}/:id`, (req: Request, res: Response) => {
-      this.updateTask(req, res);
-    });
-    this.router.delete(`${this.prefix}/:id`, (req: Request, res: Response) => {
+    this.router.get(this.prefix, 
+      this.autenticateToken,  
+      (req: Request, res: Response) => {
+        this.getAllTasks(req, res);
+      }
+    );
+    this.router.get(
+      `${this.prefix}/:id`,
+      this.autenticateToken,
+      (req: Request, res: Response) => {
+        this.getTaskById(req, res);
+      },
+    );
+    this.router.post(
+      this.prefix,
+      this.autenticateToken,
+      (req: Request, res: Response) => {
+        this.createTask(req, res);
+      },
+    );
+    this.router.patch(
+      `${this.prefix}/:id`,
+      this.autenticateToken,
+      (req: Request, res: Response) => {
+        this.updateTask(req, res);
+      },
+    );
+    this.router.delete(`${this.prefix}/:id`, this.autenticateToken,  (req: Request, res: Response) => {
       this.deleteTask(req, res);
     });
   }

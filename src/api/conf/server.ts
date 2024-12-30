@@ -11,7 +11,8 @@ import bodyParser from 'body-parser';
 const server = express();
 
 // Middleware para lidar com JSON
-server.use(express.json());
+server.use(bodyParser.json());
+
 
 // Middleware para lidar com formulários
 server.use(express.urlencoded({ extended: false }));
