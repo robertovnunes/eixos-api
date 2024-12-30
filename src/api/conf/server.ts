@@ -3,6 +3,8 @@ import cors from 'cors';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swaggerConfig';
+import bcrypt from 'bcrypt';
+import bodyParser from 'body-parser';
 
 
 

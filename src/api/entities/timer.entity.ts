@@ -13,7 +13,7 @@ class TimerEntity extends BaseEntity {
     this.name = data.name || '';
     this.focusTime = data.focusTime || 0;
     this.shortBreakTime = data.shortBreakTime || 0;
-    this.loops = data.loops || 0;
+    this.loops = data.loops || 1;
     if(data.longBreakTime){
       this.longBreakTime = data.longBreakTime;
     }

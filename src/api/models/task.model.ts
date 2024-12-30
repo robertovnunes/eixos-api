@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import BaseModel, { IBaseModel } from "./base.model";
-import mongoose from "mongoose";
 
 interface Subtask {
     description: string;
