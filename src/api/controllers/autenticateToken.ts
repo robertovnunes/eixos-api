@@ -8,7 +8,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
         return res.status(401).json({ message: 'Token não fornecido' });
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[0];
     const secret = process.env.JWT_SECRET || 'defaultsecret';
 
     jwt.verify(token, secret, (err, decoded) => {

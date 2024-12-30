@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import TimerService from "../services/timer.service";
 import TimerEntity from "../entities/timer.entity";
 import { Result, SuccessResult } from "../utils/result";

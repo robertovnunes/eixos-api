@@ -1,7 +1,9 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import TasksService from '../services/tasks.service';
 import TaskEntity from '../entities/task.entity';
 import { Result, SuccessResult } from '../utils/result';
+import jwt from 'jsonwebtoken';
+import { configDotenv } from 'dotenv';
 import { authenticateToken } from './autenticateToken';
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
@@ -10,46 +12,51 @@ class TaskController {
   private prefix: string = '/tasks';
   public router: Router;
   private taskService: TasksService;
-  private autenticateToken: any;
+  private authenticateToken: any;
 
   constructor(router: Router, taskService: TasksService) {
     this.router = router;
     this.taskService = taskService;
-    this.autenticateToken = authenticateToken;
+    this.authenticateToken = authenticateToken;
     this.initRoutes();
   }
 
   private initRoutes() {
-    this.router.get(this.prefix, 
-      this.autenticateToken,  
+    this.router.get(
+      this.prefix,
+      this.authenticateToken,
       (req: Request, res: Response) => {
         this.getAllTasks(req, res);
-      }
+      },
     );
     this.router.get(
       `${this.prefix}/:id`,
-      this.autenticateToken,
+      this.authenticateToken,
       (req: Request, res: Response) => {
         this.getTaskById(req, res);
       },
     );
     this.router.post(
       this.prefix,
-      this.autenticateToken,
+      this.authenticateToken,
       (req: Request, res: Response) => {
         this.createTask(req, res);
       },
     );
     this.router.patch(
       `${this.prefix}/:id`,
-      this.autenticateToken,
+      this.authenticateToken,
       (req: Request, res: Response) => {
         this.updateTask(req, res);
       },
     );
-    this.router.delete(`${this.prefix}/:id`, this.autenticateToken,  (req: Request, res: Response) => {
-      this.deleteTask(req, res);
-    });
+    this.router.delete(
+      `${this.prefix}/:id`,
+      this.authenticateToken,
+      (req: Request, res: Response) => {
+        this.deleteTask(req, res);
+      },
+    );
   }
 
   private getAllTasks = async (req: Request, res: Response) => {
@@ -57,7 +64,8 @@ class TaskController {
       const tasks = await this.taskService.getTasks();
       if (tasks.length === 0) {
         console.error('/GET/tasks 204 Empty list');
-        res.status(204)
+        res
+          .status(204)
           .send({ messageCode: 'empty_list', message: 'No tasks in database' });
       } else {
         console.log('/GET/tasks 200 OK');
@@ -65,7 +73,12 @@ class TaskController {
       }
     } catch (error) {
       console.error(`/GET 500 ${error}`);
-      res.status(500).send({ messageCode: 'server_error', message: 'internal server error' });
+      res
+        .status(500)
+        .send({
+          messageCode: 'server_error',
+          message: 'internal server error',
+        });
     }
   };
 
@@ -102,7 +115,9 @@ class TaskController {
           message: 'Missing fields: ' + missingFields.join(', '),
         });
       } else {
-        const task = await this.taskService.createTask(req.body as Partial<TaskEntity>);
+        const task = await this.taskService.createTask(
+          req.body as Partial<TaskEntity>,
+        );
         console.log('/POST 201 Created');
         res.status(201).send(task);
       }
@@ -137,15 +152,13 @@ class TaskController {
     }
   };
 
-
   private deleteTask = async (req: Request, res: Response) => {
     try {
       await this.taskService.deleteTask(req.params.id);
-      
+
       return new SuccessResult({
         msg: Result.transformRequestOnMsg(req),
       }).handle(res);
-
     } catch (error) {
       console.error('/DELETE 500 ' + error);
       res

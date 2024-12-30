@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import UserService from '../services/user.service';
 import { TokenService } from '../services/token.service';
 import {TokenEntity} from '../entities/token.entity';
+import {config} from 'dotenv';
 
 export default class LoginControler {
   private prefix: string = '/login';
@@ -35,7 +36,7 @@ export default class LoginControler {
     );
 
     this.router.delete(
-      `${this.prefix}/logout`,
+      `${this.prefix}`,
       (req: Request, res: Response) => {
         this.logout(req, res);
       },
@@ -72,7 +73,8 @@ export default class LoginControler {
       }
       console.log('/POST 200 OK');
       const token = this.generateToken(user.email);
-      return this.tokenService.createToken( new TokenEntity({ token }) );
+      await this.tokenService.createToken( new TokenEntity({ token }) );
+      res.status(200).send({ token });
     } catch (error) {
       console.error(`/POST 500 ${error}`);
       res.status(500).send({

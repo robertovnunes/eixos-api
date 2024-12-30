@@ -9,7 +9,7 @@ export default class TokenModel extends BaseModel<ITokenModel> {
     constructor() {
         super('Token', {
           token: { type: String, required: true },
-          expiresAt: { type: Date, required: true },
+          expiresAt: { type: Date, required: false },
         });
     }
 }
