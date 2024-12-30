@@ -83,9 +83,24 @@ export default class LoginControler {
   };
 
   private logout = async (req: Request, res: Response) => {
-    console.log('/DELETE/login/logout 200 OK');
-    res
-      .status(200)
-      .send({ messageCode: 'success', message: 'Logout successful' });
+    try {
+      const token = req.headers.authorization;
+      if (!token) {
+        console.error('/DELETE/login/logout 401 Unauthorized');
+        res
+          .status(401)
+          .send({ messageCode: 'unauthorized', message: 'Token not provided' });
+        return;
+      }
+      await this.tokenService.deleteToken(token);
+      console.log('/DELETE/login/logout 200 OK');
+      res.status(200).send({ messageCode: 'ok', message: 'Token deleted' });
+    } catch (error) {
+      console.error(`/DELETE/login/logout 500 ${error}`);
+      res.status(500).send({
+        messageCode: 'server_error',
+        message: 'internal server error',
+      });
+    }
   };
 }
