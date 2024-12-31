@@ -4,7 +4,7 @@ import TaskEntity from '../entities/task.entity';
 import { Result, SuccessResult } from '../utils/result';
 import jwt from 'jsonwebtoken';
 import { configDotenv } from 'dotenv';
-import { authenticateToken } from './autenticateToken';
+import  {authenticateToken}  from './autenticateToken';
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 

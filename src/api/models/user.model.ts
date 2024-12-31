@@ -16,6 +16,7 @@ export interface IUserModel extends IBaseModel {
   phone?: Phone | {};
   defaultTimer?: ObjectId;
   theme?: string;
+  refreshToken?: string;
 }
 
 export default class UserModel extends BaseModel<IUserModel> {
@@ -27,7 +28,8 @@ export default class UserModel extends BaseModel<IUserModel> {
         password: { type: String, required: true },
         phone: { type: Object, required: false },
         defaultTimer: { type: Types.ObjectId, ref:"timers", required: false },
-        theme: { type: String, required: false }
+        theme: { type: String, required: false },
+        refreshToken: { type: String, required: false },
         });
     }
 }

@@ -1,5 +1,8 @@
 import server from './api/conf/server';
 import routes from './api/routes';
+import { config } from 'dotenv';
+
+config();
 
 const app = server;
 

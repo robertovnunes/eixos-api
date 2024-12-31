@@ -41,6 +41,14 @@ class UserService{
         await this.userRepository.delete(userId);
     }
 
+    async updateRefreshToken(email: string, refreshToken: string): Promise<void>{
+        await this.userRepository.updateRefreshToken(email, refreshToken);
+    }
+
+    async getUserByRefreshToken(refreshToken: string): Promise<UserEntity | null>{
+        const user = await this.userRepository.findByRefreshToken(refreshToken);
+        return user ? new UserEntity(user) : null;
+    }
 }
 
 export default UserService;

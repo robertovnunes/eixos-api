@@ -32,4 +32,24 @@ export default class UserRepository extends BaseRepository<IUserModel> {
         return null;
     }
 
+    /**
+     * atualiza o refreshToken do usuário.
+     * @param userId - ID do usuário.
+     * @param refreshToken - Token de atualização.
+     * @returns O usuário atualizado.
+     */
+    async updateRefreshToken(email: string, refreshToken: string): Promise<void> {
+        await MongoDBConnection.getInstance();
+        this.model.findOneAndUpdate({email}, { refreshToken }).exec();
+    }
+
+    /**
+     * Busca usuario pelo refreshToken.
+     * @param refreshToken - Token de atualização.
+     * @returns O usuário encontrado ou null.
+     */
+    async findByRefreshToken(refreshToken: string): Promise<IUserModel | null> {
+        await MongoDBConnection.getInstance();
+        return this.model.findOne({ refreshToken }).exec();
+    }
 }

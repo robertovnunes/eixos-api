@@ -21,6 +21,7 @@ export default class UserEntity extends BaseEntity {
     public phone?: Phone | {};
     public defaultTimer?: ObjectId;
     public theme?: string;
+    public refreshToken?: string;
 
     constructor(data: Partial<UserEntity>) {
         super(data);
@@ -30,5 +31,6 @@ export default class UserEntity extends BaseEntity {
         this.phone = data.phone || {};
         this.defaultTimer = data.defaultTimer || undefined;
         this.theme = data.theme || "";
+        this.refreshToken = data.refreshToken || "";
     }
 }

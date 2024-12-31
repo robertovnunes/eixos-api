@@ -1,11 +1,9 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
+import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import UserService from '../services/user.service';
 import { TokenService } from '../services/token.service';
-import {TokenEntity} from '../entities/token.entity';
-import {config} from 'dotenv';
-
+import { authenticateToken, generateAccessToken, generateRefreshToken} from './autenticateToken';
 export default class LoginControler {
   private prefix: string = '/login';
   public router: Router;
@@ -17,13 +15,6 @@ export default class LoginControler {
     this.userService = userService;
     this.tokenService = tokenService;
     this.initRoutes();
-  }
-
-  // Função para gerar um token JWT
-  private generateToken(username: string): string {
-    const secret = process.env.JWT_SECRET || 'defaultsecret';
-    const expiresIn = process.env.JWT_EXPIRES_IN || '360h';
-    return jwt.sign({ username }, secret, { expiresIn });
   }
 
   private initRoutes() {
@@ -41,6 +32,10 @@ export default class LoginControler {
         this.logout(req, res);
       },
     );
+
+    this.router.post('/refresh', (req: Request, res: Response) => {
+      this.refreshToken(req, res);
+    });
   }
 
   private login = async (req: Request, res: Response) => {
@@ -72,9 +67,10 @@ export default class LoginControler {
         return;
       }
       console.log('/POST 200 OK');
-      const token = this.generateToken(user.email);
-      await this.tokenService.createToken( new TokenEntity({ token }) );
-      res.status(200).send({ token });
+      const acess_token = generateAccessToken(user.email);
+      const refresh_token = generateRefreshToken(user.email);
+      await this.userService.updateRefreshToken(user.email, refresh_token);
+      res.status(200).send({ acess_token, refresh_token });
     } catch (error) {
       console.error(`/POST 500 ${error}`);
       res.status(500).send({
@@ -105,4 +101,23 @@ export default class LoginControler {
       });
     }
   };
+
+  private refreshToken = async (req: Request, res: Response) => {
+    const refreshToken = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'Refresh token não fornecido' });
+    }
+
+    const user = await this.userService.getUserByRefreshToken(refreshToken);
+
+    if (!user) {
+      return res.status(403).json({ message: 'Token inválido' });
+    }
+
+    authenticateToken(req, res, () => {
+      const accessToken = generateAccessToken(user.email);
+      res.status(200).json({ accessToken });
+    });
+  }
 }
