@@ -1,36 +1,29 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import UserService from '../services/user.service';
-import { TokenService } from '../services/token.service';
 import { authenticateToken, generateAccessToken, generateRefreshToken} from './autenticateToken';
 export default class LoginControler {
   private prefix: string = '/login';
   public router: Router;
   private userService: UserService;
-  private tokenService: TokenService;
 
-  constructor(router: Router, userService: UserService, tokenService: TokenService) {
+  constructor(
+    router: Router,
+    userService: UserService,
+  ) {
     this.router = router;
     this.userService = userService;
-    this.tokenService = tokenService;
     this.initRoutes();
   }
 
   private initRoutes() {
+    this.router.post(this.prefix, (req: Request, res: Response) => {
+      this.login(req, res);
+    });
 
-    this.router.post(
-      this.prefix, 
-      (req: Request, res: Response) => {
-        this.login(req, res);
-      }
-    );
-
-    this.router.delete(
-      `${this.prefix}`,
-      (req: Request, res: Response) => {
-        this.logout(req, res);
-      },
-    );
+    this.router.delete(`${this.prefix}`, (req: Request, res: Response) => {
+      this.logout(req, res);
+    });
 
     this.router.post('/refresh', (req: Request, res: Response) => {
       this.refreshToken(req, res);
@@ -38,6 +31,10 @@ export default class LoginControler {
 
     this.router.get(`${this.prefix}/verify`, (req: Request, res: Response) => {
       this.verifyToken(req, res);
+    });
+
+    this.router.get(`${this.prefix}/verifyRefresh`, (req: Request, res: Response) => {
+      this.verifyRefreshToken(req, res);
     });
   }
 
@@ -78,21 +75,21 @@ export default class LoginControler {
             response,
           });
           return;
-        } 
+        }
         const access_token = generateAccessToken(user.email);
         res
           .cookie('access_token', access_token, {
             httpOnly: true,
             secure: false,
             //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 15 * 60 * 1000, // 15 minutos
           })
           .cookie('refresh_token', user.refreshToken, {
             httpOnly: true,
             secure: false,
             //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
           })
           .sendStatus(200);
@@ -105,14 +102,14 @@ export default class LoginControler {
             httpOnly: true,
             secure: false,
             //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 15 * 60 * 1000, // 15 minutos
           })
           .cookie('refresh_token', refresh_token, {
             httpOnly: true,
             secure: false,
             //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
           })
           .sendStatus(200);
@@ -129,19 +126,19 @@ export default class LoginControler {
 
   private logout = async (req: Request, res: Response) => {
     try {
-       res
-         .clearCookie('access_token', {
-           httpOnly: true,
-           //secure: process.env.NODE_ENV === 'production',
-           sameSite: 'strict',
-         })
-         .clearCookie('refresh_token', {
-           httpOnly: true,
-           //secure: process.env.NODE_ENV === 'production',
-           sameSite: 'strict',
-         })
-         .status(200)
-         .json({ message: 'Logout realizado com sucesso!' });
+      res
+        .clearCookie('access_token', {
+          httpOnly: true,
+          //secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+        })
+        .clearCookie('refresh_token', {
+          httpOnly: true,
+          //secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+        })
+        .status(200)
+        .json({ message: 'Logout realizado com sucesso!' });
     } catch (error) {
       console.error(`/DELETE/login/logout 500 ${error}`);
       res.status(500).send({
@@ -178,12 +175,27 @@ export default class LoginControler {
       })
       .status(200)
       .json({ message: 'Token de acesso renovado' });
-  }
+  };
 
   private verifyToken = async (req: Request, res: Response) => {
     const token = req.cookies['access_token'];
     console.log('token to verify ', token);
-    if(!token) return res.status(401).json({ authenticated: false });
+    if (!token) return res.status(401).json({ authenticated: false });
+    const response = authenticateToken(token);
+    console.log('response', response);
+    if (response.authenticate) {
+      console.log('GET /login/verify 200 OK');
+      return res.status(200).json({ authenticated: true });
+    } else {
+      console.log('GET /login/verify 401 Unauthorized');
+      return res.status(401).json(response.message);
+    }
+  };
+
+  private verifyRefreshToken = async (req: Request, res: Response) => {
+    const token = req.cookies['refresh_token'];
+    console.log('token to verify ', token);
+    if (!token) return res.status(401).json({ authenticated: false });
     const response = authenticateToken(token);
     console.log('response', response);
     if (response.authenticate) {
