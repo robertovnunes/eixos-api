@@ -2,8 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import TasksService from '../services/tasks.service';
 import TaskEntity from '../entities/task.entity';
 import { Result, SuccessResult } from '../utils/result';
-import jwt from 'jsonwebtoken';
-import { configDotenv } from 'dotenv';
 import  {authenticateToken}  from './autenticateToken';
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
@@ -12,14 +10,36 @@ class TaskController {
   private prefix: string = '/tasks';
   public router: Router;
   private taskService: TasksService;
-  private authenticateToken: any;
 
   constructor(router: Router, taskService: TasksService) {
     this.router = router;
     this.taskService = taskService;
-    this.authenticateToken = authenticateToken;
+
     this.initRoutes();
   }
+
+  private authenticateToken(req: Request, res: Response, next: NextFunction): any {
+    const token = req.cookies['access_token'];
+
+    console.log('token', token);
+    if (!token) {
+      return res.status(401).send({
+        messageCode: 'unauthorized',
+        message: 'Token não fornecido',
+      });
+    } else {
+      const result = authenticateToken(token);
+      if (result.authenticate) {
+        next();
+      } else {
+        return res.status(401).send({
+          messageCode: 'unauthorized',
+          result,
+        });
+      }
+    }
+  }
+  
 
   private initRoutes() {
     this.router.get(

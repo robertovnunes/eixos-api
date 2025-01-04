@@ -3,8 +3,8 @@ import cors from 'cors';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swaggerConfig';
-import bcrypt from 'bcrypt';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 
 
@@ -13,6 +13,8 @@ const server = express();
 // Middleware para lidar com JSON
 server.use(bodyParser.json());
 
+// Middleware para lidar com cookies
+server.use(cookieParser());
 
 // Middleware para lidar com formulários
 server.use(express.urlencoded({ extended: false }));
@@ -37,8 +39,9 @@ server.use(
 
 // Middleware para CORS
 const corsOptions = {
-  origin: '*', // Permitir acesso de qualquer origem
+  origin: 'http://localhost:4000', // Permitir acesso de qualquer origem
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Métodos permitidos
+  credentials: true,
   //allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
 };
 

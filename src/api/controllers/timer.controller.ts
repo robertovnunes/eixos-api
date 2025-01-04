@@ -8,16 +8,34 @@ import { authenticateToken } from "./autenticateToken";
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
 class TimerController {
-  private prefix: string = "/timers";
+  private prefix: string = '/timers';
   public router: Router;
   private timerService: TimerService;
-  private authToken: any;
 
   constructor(router: Router, timerService: TimerService) {
     this.router = router;
     this.timerService = timerService;
-    this.authToken = authenticateToken;
     this.initRoutes();
+  }
+
+  private authToken(req: Request, res: Response, next: NextFunction): any {
+    const token = req.cookies['access_token'];
+    if (!token) {
+      return res.status(401).send({
+        messageCode: 'unauthorized',
+        message: 'Unauthorized',
+      });
+    } else {
+      const result = authenticateToken(token);
+      if (result.authenticate) {
+        next();
+      } else {
+        return res.status(401).send({
+          messageCode: 'unauthorized',
+          result,
+        });
+      }
+    }
   }
 
   private initRoutes() {
@@ -62,19 +80,21 @@ class TimerController {
     try {
       const timers = await this.timerService.getTimers();
       if (timers.length === 0) {
-        console.error("/GET/timers 204 Empty list");
-        res
-          .status(204)
-          .send({ messageCode: "empty_list", message: "No timers in database" });
+        console.error('/GET/timers 204 Empty list');
+        res.status(204).send({
+          messageCode: 'empty_list',
+          message: 'No timers in database',
+        });
       } else {
-        console.log("/GET/timers 200 OK");
+        console.log('/GET/timers 200 OK');
         res.status(200).send(timers);
       }
     } catch (error) {
       console.error(`/GET 500 ${error}`);
-      res
-        .status(500)
-        .send({ messageCode: "server_error", message: "internal server error" });
+      res.status(500).send({
+        messageCode: 'server_error',
+        message: 'internal server error',
+      });
     }
   };
 
@@ -82,60 +102,76 @@ class TimerController {
     try {
       const timer = await this.timerService.getTimerById(req.params.id);
       if (!timer) {
-        console.error("/GET 404 not found");
+        console.error('/GET 404 not found');
         res
           .status(404)
-          .send({ messageCode: "not_found", message: "Timer not found" });
+          .send({ messageCode: 'not_found', message: 'Timer not found' });
       } else {
-        console.log("/GET 200 OK");
+        console.log('/GET 200 OK');
         res.status(200).send(timer);
       }
     } catch (error) {
-      console.error("/GET 500 " + error);
+      console.error('/GET 500 ' + error);
+      res.status(500).send({
+        messageCode: 'server_error',
+        message: 'internal server error',
+      });
+    }
+  };
+
+  private createTimer = async (req: Request, res: Response) => {
+    try {
+      const timer = await this.timerService.createTimer(
+        req.body as TimerEntity,
+      );
+      console.log('/POST/timers 201 Created');
+      res.status(201).send(timer);
+    } catch (error) {
+      console.error(`/POST/timers 500 ${error}`);
+      res.status(500).send({
+        messageCode: 'server_error',
+        message: 'internal server error',
+      });
+    }
+  };
+
+  private updateTimer = async (req: Request, res: Response) => {
+    try {
+      const timer = await this.timerService.updateTimer(
+        req.params.id,
+        req.body as TimerEntity,
+      );
+      if (!timer) {
+        console.error('/PATCH/timers 404 not found');
         res
-            .status(500)
-            .send({ messageCode: "server_error", message: "internal server error" });
+          .status(404)
+          .send({ messageCode: 'not_found', message: 'Timer not found' });
+      } else {
+        console.log('/PATCH/timers 200 OK');
+        res.status(200).send(timer);
+      }
+    } catch (error) {
+      console.error(`/PATCH/timers 500 ${error}`);
+      res.status(500).send({
+        messageCode: 'server_error',
+        message: 'internal server error',
+      });
     }
+  };
+
+  private deleteTimer = async (req: Request, res: Response) => {
+    try {
+      await this.timerService.deleteTimer(req.params.id);
+      console.log('/DELETE/timers 204 No content');
+      res.status(204).send();
+    } catch (error) {
+      console.error(`/DELETE/timers 500 ${error}`);
+      res.status(500).send({
+        messageCode: 'server_error',
+        message: 'internal server error',
+      });
     }
-
-    private createTimer = async (req: Request, res: Response) => {
-        try {
-            const timer = await this.timerService.createTimer(req.body as TimerEntity);
-            console.log("/POST/timers 201 Created");
-            res.status(201).send(timer);
-        } catch (error) {
-            console.error(`/POST/timers 500 ${error}`);
-            res.status(500).send({ messageCode: "server_error", message: "internal server error" });
-        }
-    };
-
-    private updateTimer = async (req: Request, res: Response) => {
-        try {
-            const timer = await this.timerService.updateTimer(req.params.id, req.body as TimerEntity);
-            if (!timer) {
-                console.error("/PATCH/timers 404 not found");
-                res.status(404).send({ messageCode: "not_found", message: "Timer not found" });
-            } else {
-                console.log("/PATCH/timers 200 OK");
-                res.status(200).send(timer);
-            }
-        } catch (error) {
-            console.error(`/PATCH/timers 500 ${error}`);
-            res.status(500).send({ messageCode: "server_error", message: "internal server error" });
-        }
-    };
-
-    private deleteTimer = async (req: Request, res: Response) => {
-        try {
-            await this.timerService.deleteTimer(req.params.id);
-            console.log("/DELETE/timers 204 No content");
-            res.status(204).send();
-        } catch (error) {
-            console.error(`/DELETE/timers 500 ${error}`);
-            res.status(500).send({ messageCode: "server_error", message: "internal server error" });
-        }
-    };
-
+  };
 }
 
 export default TimerController;

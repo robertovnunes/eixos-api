@@ -16,6 +16,7 @@
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cnl-api": "file:",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "cucumber": "^6.0.7",
     "dotenv": "^16.4.7",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@cucumber/cucumber": "^11.1.1",
     "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/cucumber": "^6.0.1",
     "@types/express": "^5.0.0",

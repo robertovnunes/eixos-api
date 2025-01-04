@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import UserService from '../services/user.service';
 import { TokenService } from '../services/token.service';
@@ -36,6 +35,10 @@ export default class LoginControler {
     this.router.post('/refresh', (req: Request, res: Response) => {
       this.refreshToken(req, res);
     });
+
+    this.router.get(`${this.prefix}/verify`, (req: Request, res: Response) => {
+      this.verifyToken(req, res);
+    });
   }
 
   private login = async (req: Request, res: Response) => {
@@ -66,11 +69,55 @@ export default class LoginControler {
         });
         return;
       }
+      if (user.refreshToken) {
+        const response = authenticateToken(user.refreshToken);
+        if (!response.authenticate) {
+          console.error('/POST 403 Forbidden');
+          res.status(403).send({
+            messageCode: 'forbidden',
+            response,
+          });
+          return;
+        } 
+        const access_token = generateAccessToken(user.email);
+        res
+          .cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: false,
+            //secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // 15 minutos
+          })
+          .cookie('refresh_token', user.refreshToken, {
+            httpOnly: true,
+            secure: false,
+            //secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+          })
+          .sendStatus(200);
+      } else {
+        const access_token = generateAccessToken(user.email);
+        const refresh_token = generateRefreshToken(user.email);
+        await this.userService.updateRefreshToken(user.email, refresh_token);
+        res
+          .cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: false,
+            //secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // 15 minutos
+          })
+          .cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: false,
+            //secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+          })
+          .sendStatus(200);
+      }
       console.log('/POST 200 OK');
-      const acess_token = generateAccessToken(user.email);
-      const refresh_token = generateRefreshToken(user.email);
-      await this.userService.updateRefreshToken(user.email, refresh_token);
-      res.status(200).send({ acess_token, refresh_token });
     } catch (error) {
       console.error(`/POST 500 ${error}`);
       res.status(500).send({
@@ -82,17 +129,19 @@ export default class LoginControler {
 
   private logout = async (req: Request, res: Response) => {
     try {
-      const token = req.headers.authorization;
-      if (!token) {
-        console.error('/DELETE/login/logout 401 Unauthorized');
-        res
-          .status(401)
-          .send({ messageCode: 'unauthorized', message: 'Token not provided' });
-        return;
-      }
-      await this.tokenService.deleteToken(token);
-      console.log('/DELETE/login/logout 200 OK');
-      res.status(200).send({ messageCode: 'ok', message: 'Token deleted' });
+       res
+         .clearCookie('access_token', {
+           httpOnly: true,
+           //secure: process.env.NODE_ENV === 'production',
+           sameSite: 'strict',
+         })
+         .clearCookie('refresh_token', {
+           httpOnly: true,
+           //secure: process.env.NODE_ENV === 'production',
+           sameSite: 'strict',
+         })
+         .status(200)
+         .json({ message: 'Logout realizado com sucesso!' });
     } catch (error) {
       console.error(`/DELETE/login/logout 500 ${error}`);
       res.status(500).send({
@@ -103,7 +152,7 @@ export default class LoginControler {
   };
 
   private refreshToken = async (req: Request, res: Response) => {
-    const refreshToken = req.body;
+    const refreshToken = req.cookies['refresh_token'];
 
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token não fornecido' });
@@ -115,9 +164,34 @@ export default class LoginControler {
       return res.status(403).json({ message: 'Token inválido' });
     }
 
-    authenticateToken(req, res, () => {
-      const accessToken = generateAccessToken(user.email);
-      res.status(200).json({ accessToken });
-    });
+    const response = authenticateToken(refreshToken);
+    if (!response.authenticate) {
+      return res.status(403).json({ message: 'Token inválido' });
+    }
+    const accessToken = generateAccessToken(user.email);
+    res
+      .cookie('access_token', accessToken, {
+        httpOnly: true,
+        //secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 minutos
+      })
+      .status(200)
+      .json({ message: 'Token de acesso renovado' });
   }
+
+  private verifyToken = async (req: Request, res: Response) => {
+    const token = req.cookies['access_token'];
+    console.log('token to verify ', token);
+    if(!token) return res.status(401).json({ authenticated: false });
+    const response = authenticateToken(token);
+    console.log('response', response);
+    if (response.authenticate) {
+      console.log('GET /login/verify 200 OK');
+      return res.status(200).json({ authenticated: true });
+    } else {
+      console.log('GET /login/verify 401 Unauthorized');
+      return res.status(401).json(response.message);
+    }
+  };
 }
