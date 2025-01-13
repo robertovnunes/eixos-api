@@ -3,8 +3,7 @@ import TimerService from "../services/timer.service";
 import TimerEntity from "../entities/timer.entity";
 import { Result, SuccessResult } from "../utils/result";
 import { HttpError } from "../utils/errors/http.error";
-import { authenticateToken } from "./autenticateToken";
-
+import jwt from "jsonwebtoken";
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
 class TimerController {
@@ -18,23 +17,33 @@ class TimerController {
     this.initRoutes();
   }
 
+  private authenticateToken = (token: string) => {
+    const SECRET = process.env.JWT_SECRET || 'secret';
+    if (!token) {
+      return false;
+    }
+
+    try {
+      jwt.verify(token, SECRET);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
   private authToken(req: Request, res: Response, next: NextFunction): any {
     const token = req.cookies['access_token'];
+    const JWT_SECRET = process.env.JWT_SECRET || 'secret';
     if (!token) {
-      return res.status(401).send({
-        messageCode: 'unauthorized',
-        message: 'Unauthorized',
-      });
-    } else {
-      const result = authenticateToken(token);
-      if (result.authenticate) {
-        next();
-      } else {
-        return res.status(401).send({
-          messageCode: 'unauthorized',
-          result,
-        });
-      }
+      return res.status(401).send({ message: 'Token ausente ou inválido.' });
+    }
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      (req as any).user = decoded; // Anexa os dados do usuário à requisição
+      next();
+    } catch (err) {
+      return res.status(403).send({ message: 'Token inválido.' });
     }
   }
 

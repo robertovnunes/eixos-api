@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swaggerConfig';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import { access } from 'fs';
 
 
 
@@ -41,7 +42,17 @@ server.use(
 const corsOptions = {
   origin: 'http://localhost:4000', // Permitir acesso de qualquer origem
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Métodos permitidos
+  allowedHeaders: [
+    'Content-Type',
+    'Accept',
+    'Origin',
+    'X-Requested-With',
+  ], // C
   credentials: true,
+  accessControlAllowCredentials: true,
+  accessControlAllowOrigin: 'http://localhost:4000',
+  accessControlAllowHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
+  accessControlAllowMethods: 'GET, POST, PUT, PATCH, DELETE',
   //allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
 };
 

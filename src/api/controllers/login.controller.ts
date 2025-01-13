@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import UserService from '../services/user.service';
-import { authenticateToken, generateAccessToken, generateRefreshToken} from './autenticateToken';
 export default class LoginControler {
   private prefix: string = '/login';
   public router: Router;
   private userService: UserService;
+  private SECRET: string;
 
   constructor(
     router: Router,
@@ -14,6 +15,29 @@ export default class LoginControler {
     this.router = router;
     this.userService = userService;
     this.initRoutes();
+    this.SECRET = process.env.JWT_SECRET || 'secret';
+  }
+
+  private generateAccessToken = (email: string) => {
+    return jwt.sign({ email }, this.SECRET, { expiresIn: '15m' });
+  };
+
+  private generateRefreshToken = (email: string) => {
+    return jwt.sign({ email }, this.SECRET, { expiresIn: '7d' });
+  };
+
+  private authenticateToken = (token: string)  => {
+  
+      if (!token) {
+          return { authenticate: false, message: 'Token não fornecido' };
+      }
+      
+      try {
+          jwt.verify(token, this.SECRET);
+          return { authenticate: true, message: 'Token autenticado' };
+      } catch (err) {
+          return { authenticate: false, message: 'Token inválido' };
+      }
   }
 
   private initRoutes() {
@@ -21,7 +45,7 @@ export default class LoginControler {
       this.login(req, res);
     });
 
-    this.router.delete(`${this.prefix}`, (req: Request, res: Response) => {
+    this.router.post(`/logout`, (req: Request, res: Response) => {
       this.logout(req, res);
     });
 
@@ -39,6 +63,7 @@ export default class LoginControler {
   }
 
   private login = async (req: Request, res: Response) => {
+    let access_token, refresh_token: string;
     try {
       const { email, password } = req.body;
       if (!email || !password) {
@@ -67,53 +92,39 @@ export default class LoginControler {
         return;
       }
       if (user.refreshToken) {
-        const response = authenticateToken(user.refreshToken);
+        refresh_token = user.refreshToken;
+        const response = this.authenticateToken(refresh_token);
         if (!response.authenticate) {
           console.error('/POST 403 Forbidden');
-          res.status(403).send({
+          return res.status(403).send({
             messageCode: 'forbidden',
             response,
           });
-          return;
-        }
-        const access_token = generateAccessToken(user.email);
-        res
-          .cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: false,
-            //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 15 * 60 * 1000, // 15 minutos
-          })
-          .cookie('refresh_token', user.refreshToken, {
-            httpOnly: true,
-            secure: false,
-            //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-          })
-          .sendStatus(200);
+        } 
+        access_token = this.generateAccessToken(user.email);
+        
       } else {
-        const access_token = generateAccessToken(user.email);
-        const refresh_token = generateRefreshToken(user.email);
-        await this.userService.updateRefreshToken(user.email, refresh_token);
-        res
-          .cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: false,
-            //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 15 * 60 * 1000, // 15 minutos
-          })
-          .cookie('refresh_token', refresh_token, {
-            httpOnly: true,
-            secure: false,
-            //secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-          })
-          .sendStatus(200);
+        access_token = this.generateAccessToken(user.email);
+        refresh_token = this.generateRefreshToken(user.email);
+        this.userService.updateRefreshToken(user.email, refresh_token);
       }
+      res
+        .cookie('access_token', access_token, {
+          httpOnly: true,
+          //path: '/*',
+          //secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000, // 15 minutos
+        })
+        .cookie('refresh_token', refresh_token, {
+          httpOnly: true,
+          //path: '/*',
+          //secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        })
+        .status(200)
+        .json({ success: true, message: 'Login realizado com sucesso!' });
       console.log('/POST 200 OK');
     } catch (error) {
       console.error(`/POST 500 ${error}`);
@@ -126,19 +137,18 @@ export default class LoginControler {
 
   private logout = async (req: Request, res: Response) => {
     try {
+      const refreshToken = req.cookies['refresh_token'];
+      const user = await this.userService.getUserByRefreshToken(refreshToken);
+      if (!user) {
+        return res.status(403).json({ message: 'Token inválido' });
+      }
+      await this.userService.updateRefreshToken(user.email, '');
       res
-        .clearCookie('access_token', {
-          httpOnly: true,
-          //secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-        })
-        .clearCookie('refresh_token', {
-          httpOnly: true,
-          //secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-        })
+        .clearCookie('access_token')
+        .clearCookie('refresh_token')
         .status(200)
         .json({ message: 'Logout realizado com sucesso!' });
+        console.log('/POST logout 200 OK');
     } catch (error) {
       console.error(`/DELETE/login/logout 500 ${error}`);
       res.status(500).send({
@@ -161,44 +171,60 @@ export default class LoginControler {
       return res.status(403).json({ message: 'Token inválido' });
     }
 
-    const response = authenticateToken(refreshToken);
+    const response = this.authenticateToken(refreshToken);
     if (!response.authenticate) {
       return res.status(403).json({ message: 'Token inválido' });
     }
-    const accessToken = generateAccessToken(user.email);
-    res
+    const accessToken = this.generateAccessToken(user.email);
+    return res
       .cookie('access_token', accessToken, {
-        httpOnly: true,
+        httpOnly: false,
+        //path: '/*',
         //secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000, // 15 minutos
       })
+      .cookie('refresh_token', refreshToken, {
+        httpOnly: false,
+        //path: '/*',
+        ///secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+      })
       .status(200)
-      .json({ message: 'Token de acesso renovado' });
+      .json({ success: 'true', message: 'Token de acesso renovado' });
   };
 
   private verifyToken = async (req: Request, res: Response) => {
     const token = req.cookies['access_token'];
-    console.log('token to verify ', token);
-    if (!token) return res.status(401).json({ authenticated: false });
-    const response = authenticateToken(token);
-    console.log('response', response);
-    if (response.authenticate) {
-      console.log('GET /login/verify 200 OK');
-      return res.status(200).json({ authenticated: true });
-    } else {
-      console.log('GET /login/verify 401 Unauthorized');
-      return res.status(401).json(response.message);
+    if (!token) {
+      console.log('GET /login/verify 401 sem token');
+      return res.status(401).json({ authenticated: false });
+    }
+    try {
+      const decoded = this.authenticateToken(token);
+      if (decoded.authenticate) {
+        console.log('GET /login/verify 200 OK');
+        return res.status(200).json({ authenticated: true });
+      } else {
+        console.log('GET /login/verify 401 Unauthorized');
+        return res.status(401).json({ authenticated: false });
+      }
+    } catch (error) {
+      console.error(`/GET/login/verify 500 ${error}`);
+      return res.status(500).json({ authenticated: false });
     }
   };
 
   private verifyRefreshToken = async (req: Request, res: Response) => {
     const token = req.cookies['refresh_token'];
-    console.log('token to verify ', token);
-    if (!token) return res.status(401).json({ authenticated: false });
-    const response = authenticateToken(token);
+    if (!token) {
+      console.log('GET /login/verifyRefresh 401 sem token');
+      return res.status(204).json({ authenticated: false });
+    }
+    const response = this.authenticateToken(token);
     console.log('response', response);
-    if (response.authenticate) {
+    if (response.authenticate === true) {
       console.log('GET /login/verify 200 OK');
       return res.status(200).json({ authenticated: true });
     } else {

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import TasksService from '../services/tasks.service';
 import TaskEntity from '../entities/task.entity';
 import { Result, SuccessResult } from '../utils/result';
-import  {authenticateToken}  from './autenticateToken';
+import jwt from 'jsonwebtoken';
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
@@ -18,25 +18,46 @@ class TaskController {
     this.initRoutes();
   }
 
-  private authenticateToken(req: Request, res: Response, next: NextFunction): any {
-    const token = req.cookies['access_token'];
+  private generateAccessToken = (email: string) => {
+    const JWT_SECRET = process.env.JWT || 'secret';
+    const ACCESS_TOKEN_EXPIRATION = process.env.ACCESS_TOKEN_EXPIRATION || '15m';
+    return jwt.sign({ email }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
+  }
 
-    console.log('token', token);
-    if (!token) {
-      return res.status(401).send({
-        messageCode: 'unauthorized',
-        message: 'Token não fornecido',
-      });
-    } else {
-      const result = authenticateToken(token);
-      if (result.authenticate) {
-        next();
-      } else {
-        return res.status(401).send({
-          messageCode: 'unauthorized',
-          result,
-        });
+  private async authenticateToken(req: Request, res: Response, next: NextFunction): Promise<any> {
+    let isAuthenticated = false;
+    const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+    const refreshToken = req.cookies['refresh_token'];
+    if (refreshToken) {
+      const isAuth = jwt.verify(refreshToken, JWT_SECRET);
+      if (isAuth) {
+        isAuthenticated = true;
       }
+    }
+    if (!isAuthenticated) {
+      return res.status(403).send({ message: 'Token inválido.' });
+    } else {
+      const token = req.cookies['access_token'];
+      
+      if (!token) {
+        const username = req.body.email;
+        const newToken = this.generateAccessToken(username);
+        res.cookie('access_token', newToken, {
+            //httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'none',
+            maxAge: 15 * 60 * 1000, // 15 minutos
+          }).json({success: 'true', message: 'Token de acesso renovado' });
+      }
+  
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        (req as any).user = decoded; // Anexa os dados do usuário à requisição
+        next();
+      } catch (err) {
+        return res.status(403).send({ message: 'Token inválido.' });
+      }
+
     }
   }
   

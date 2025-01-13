@@ -4,8 +4,6 @@ import TimerRepository from "../repositories/timer.repository";
 import TimerService from "../services/timer.service";
 import UserRepository from "../repositories/user.repository";
 import UserService from "../services/user.service";
-import { TokenRepository } from "../repositories/token.repository";
-import { TokenService } from "../services/token.service";
 
 import Injector from "./injector";
 
@@ -19,6 +17,3 @@ injector.registerService(TimerService, new TimerService(injector.getRepository(T
 
 injector.registerRepository(UserRepository, new UserRepository());
 injector.registerService(UserService, new UserService(injector.getRepository(UserRepository)));
-
-injector.registerRepository(TokenRepository, new TokenRepository());
-injector.registerService(TokenService, new TokenService(injector.getRepository(TokenRepository)));
