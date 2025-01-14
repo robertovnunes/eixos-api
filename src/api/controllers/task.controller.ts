@@ -21,7 +21,10 @@ class TaskController {
   private generateAccessToken = (email: string) => {
     const JWT_SECRET = process.env.JWT || 'secret';
     const ACCESS_TOKEN_EXPIRATION = process.env.ACCESS_TOKEN_EXPIRATION || '15m';
-    return jwt.sign({ email }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
+    const token = jwt.sign({ email }, JWT_SECRET, {
+      expiresIn: ACCESS_TOKEN_EXPIRATION,
+    });
+    return token;
   }
 
   private async authenticateToken(req: Request, res: Response, next: NextFunction): Promise<any> {
