@@ -47,6 +47,7 @@ class UserService{
 
     async getUserByRefreshToken(refreshToken: string): Promise<UserEntity | null>{
         const user = await this.userRepository.findByRefreshToken(refreshToken);
+        console.log('chegou aqui2');
         return user ? new UserEntity(user) : null;
     }
 }

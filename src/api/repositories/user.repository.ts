@@ -14,8 +14,13 @@ export default class UserRepository extends BaseRepository<IUserModel> {
    * @returns O usuário encontrado ou null.
    */
   async findByEmail(email: string): Promise<IUserModel | null> {
-    await MongoDBConnection.getInstance();
-    return this.model.findOne({ email }).exec();
+    try {
+      await MongoDBConnection.getInstance();
+      return this.model.findOne({ email }).exec();
+    } catch (error) {
+      console.error(`Erro ao buscar usuário por e-mail: ${error}`);
+      return null;
+    }
   }
 
     /**   
@@ -24,12 +29,14 @@ export default class UserRepository extends BaseRepository<IUserModel> {
      * @returns O ID do temporizador padrão ou null.
     */
     async findDefaultTimer(userId: string): Promise<string | null> {
-        await MongoDBConnection.getInstance();
-        const user = await this.model.findById(userId).exec();
-        if (user && user.defaultTimer) {
-            return user.defaultTimer.toString();
+        try {
+            await MongoDBConnection.getInstance();
+            const user = await this.model.findById(userId).exec();
+            return user && user.defaultTimer ? user.defaultTimer.toString() : null;
+        } catch (error) {
+            console.error(`Erro ao buscar temporizador padrão: ${error}`);
+            return null;
         }
-        return null;
     }
 
     /**
@@ -39,8 +46,13 @@ export default class UserRepository extends BaseRepository<IUserModel> {
      * @returns O usuário atualizado.
      */
     async updateRefreshToken(email: string, refreshToken: string): Promise<void> {
-        await MongoDBConnection.getInstance();
+        try {
+          await MongoDBConnection.getInstance();
         this.model.findOneAndUpdate({email}, { refreshToken }).exec();
+        } catch (error) {
+            console.error(`Erro ao atualizar refreshToken: ${error}`);
+          throw error;
+        }
     }
 
     /**
@@ -49,7 +61,13 @@ export default class UserRepository extends BaseRepository<IUserModel> {
      * @returns O usuário encontrado ou null.
      */
     async findByRefreshToken(refreshToken: string): Promise<IUserModel | null> {
-        await MongoDBConnection.getInstance();
-        return this.model.findOne({ refreshToken }).exec();
+        try {
+          await MongoDBConnection.getInstance();
+          console.log('chegou aqui3');
+          return this.model.findOne({ refreshToken }).exec();
+        } catch (error) {
+          console.error(`Erro ao buscar usuário por refreshToken: ${error}`);
+          return null;
+        }
     }
 }

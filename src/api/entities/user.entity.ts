@@ -1,18 +1,11 @@
 import { ObjectId } from "mongoose";
 import BaseEntity from "./base.entity";
 
-
-interface ProfileSettings {
-    theme: string;
-    defaultTimer: ObjectId;
-}
-
 interface Phone {
     ddi: string;
     ddd: string;
     number: string;
 }
-
 
 export default class UserEntity extends BaseEntity {
     public name: string;

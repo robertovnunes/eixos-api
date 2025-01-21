@@ -23,14 +23,16 @@ class TasksService {
      * @returns Instância de TaskEntity.
      */
     toEntity(taskModel) {
-        var _a;
         return new task_entity_1.default({
-            _id: (_a = taskModel._id) === null || _a === void 0 ? void 0 : _a.toString(), // Converte ObjectId para string.
+            _id: taskModel._id, // Converte ObjectId para string.
             title: taskModel.title,
             description: taskModel.description,
             completed: taskModel.completed,
             priority: taskModel.priority,
             deadline: taskModel.deadline,
+            isImportant: taskModel.isImportant,
+            isUrgent: taskModel.isUrgent,
+            subtasks: taskModel.subtasks,
         });
     }
     getTasks() {

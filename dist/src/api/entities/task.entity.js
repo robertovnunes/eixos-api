@@ -10,8 +10,11 @@ class TaskEntity extends base_entity_1.default {
         this.title = data.title || '';
         this.description = data.description || '';
         this.completed = data.completed || false;
-        this.priority = data.priority || '';
-        this.deadline = data.deadline;
+        this.priority = data.priority || { value: 0, label: 'Baixa' };
+        this.deadline = data.deadline || '';
+        this.isImportant = data.isImportant || false;
+        this.isUrgent = data.isUrgent || false;
+        this.subtasks = data.subtasks || [];
     }
 }
 exports.default = TaskEntity;

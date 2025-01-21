@@ -3,6 +3,9 @@ import TasksService from '../services/tasks.service';
 import TaskEntity from '../entities/task.entity';
 import { Result, SuccessResult } from '../utils/result';
 import jwt from 'jsonwebtoken';
+import UserService from '../services/user.service';
+import {injector} from '../di';
+
 
 // Toda documentação está escrita em ./src/conf/swaggerDoc.yaml
 
@@ -10,22 +13,16 @@ class TaskController {
   private prefix: string = '/tasks';
   public router: Router;
   private taskService: TasksService;
+  private userService: UserService;
+
 
   constructor(router: Router, taskService: TasksService) {
     this.router = router;
     this.taskService = taskService;
-
+    this.userService = injector.getService(UserService);
     this.initRoutes();
   }
 
-  private generateAccessToken = (email: string) => {
-    const JWT_SECRET = process.env.JWT || 'secret';
-    const ACCESS_TOKEN_EXPIRATION = process.env.ACCESS_TOKEN_EXPIRATION || '15m';
-    const token = jwt.sign({ email }, JWT_SECRET, {
-      expiresIn: ACCESS_TOKEN_EXPIRATION,
-    });
-    return token;
-  }
 
   private async authenticateToken(req: Request, res: Response, next: NextFunction): Promise<any> {
     let isAuthenticated = false;
@@ -41,11 +38,20 @@ class TaskController {
       return res.status(403).send({ message: 'Token inválido.' });
     } else {
       const token = req.cookies['access_token'];
-      
       if (!token) {
-        const username = req.body.email;
-        const newToken = this.generateAccessToken(username);
-        res.cookie('access_token', newToken, {
+        const user = await this.userService.getUserByRefreshToken(refreshToken);
+        const username = user && user.email ? user.email : undefined;
+        if (!username) {
+          return res.status(403).send({ message: 'Token inválido.' });
+        }
+        const JWT_SECRET = process.env.JWT || 'secret';
+        const ACCESS_TOKEN_EXPIRATION =
+          process.env.ACCESS_TOKEN_EXPIRATION || '5m';
+        const token = jwt.sign({ username }, JWT_SECRET, {
+          expiresIn: ACCESS_TOKEN_EXPIRATION,
+        });
+        token;
+        res.cookie('access_token', token, {
             //httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',

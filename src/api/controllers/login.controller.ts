@@ -19,11 +19,11 @@ export default class LoginControler {
   }
 
   private generateAccessToken = (email: string) => {
-    return jwt.sign({ email }, this.SECRET, { expiresIn: '15m' });
+    return jwt.sign({ email }, this.SECRET, { expiresIn: '5m' });
   };
 
   private generateRefreshToken = (email: string) => {
-    return jwt.sign({ email }, this.SECRET, { expiresIn: '7d' });
+    return jwt.sign({ email }, this.SECRET, { expiresIn: '15m' });
   };
 
   private authenticateToken = (token: string)  => {
@@ -114,14 +114,14 @@ export default class LoginControler {
           //path: '/*',
           //secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
-          maxAge: 15 * 60 * 1000, // 15 minutos
+          maxAge: 5 * 60 * 1000, // 15 minutos
         })
         .cookie('refresh_token', refresh_token, {
           httpOnly: true,
           //path: '/*',
           //secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+          maxAge: 15 * 60 * 1000, // 7 dias
         })
         .status(200)
         .json({ success: true, message: 'Login realizado com sucesso!' });
@@ -182,14 +182,14 @@ export default class LoginControler {
         //path: '/*',
         //secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 15 * 60 * 1000, // 15 minutos
+        maxAge: 5 * 60 * 1000, // 15 minutos
       })
       .cookie('refresh_token', refreshToken, {
         httpOnly: false,
         //path: '/*',
         ///secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        maxAge: 20 * 60 * 1000, // 7 dias
       })
       .status(200)
       .json({ success: 'true', message: 'Token de acesso renovado' });
@@ -220,12 +220,16 @@ export default class LoginControler {
     const token = req.cookies['refresh_token'];
     if (!token) {
       console.log('GET /login/verifyRefresh 401 sem token');
-      return res.status(204).json({ authenticated: false });
+      return res
+        .clearCookie('access_token')
+        .clearCookie('refresh_token')
+        .status(401)
+        .json({ authenticated: null });
     }
     const response = this.authenticateToken(token);
     console.log('response', response);
     if (response.authenticate === true) {
-      console.log('GET /login/verify 200 OK');
+      console.log('GET /login/verifyRefresh 200 OK');
       return res.status(200).json({ authenticated: true });
     } else {
       console.log('GET /login/verify 401 Unauthorized');
