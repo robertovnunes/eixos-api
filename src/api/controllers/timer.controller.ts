@@ -17,20 +17,6 @@ class TimerController {
     this.initRoutes();
   }
 
-  private authenticateToken = (token: string) => {
-    const SECRET = process.env.JWT_SECRET || 'secret';
-    if (!token) {
-      return false;
-    }
-
-    try {
-      jwt.verify(token, SECRET);
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-
   private authToken(req: Request, res: Response, next: NextFunction): any {
     const token = req.cookies['access_token'];
     const JWT_SECRET = process.env.JWT_SECRET || 'secret';

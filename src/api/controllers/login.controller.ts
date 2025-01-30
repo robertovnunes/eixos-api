@@ -7,6 +7,8 @@ export default class LoginControler {
   public router: Router;
   private userService: UserService;
   private SECRET: string;
+  private ACESS_EXPIRATION: string;
+  private REFRESH_EXPIRATION: string;
 
   constructor(
     router: Router,
@@ -16,14 +18,16 @@ export default class LoginControler {
     this.userService = userService;
     this.initRoutes();
     this.SECRET = process.env.JWT_SECRET || 'secret';
+    this.ACESS_EXPIRATION = process.env.JWT_ACCESS_EXPIRATION || '5m';
+    this.REFRESH_EXPIRATION = process.env.JWT_REFRESH_EXPIRATION || '15m';
   }
 
   private generateAccessToken = (email: string) => {
-    return jwt.sign({ email }, this.SECRET, { expiresIn: '5m' });
+    return jwt.sign({ email }, this.SECRET, { expiresIn: this.ACESS_EXPIRATION });
   };
 
   private generateRefreshToken = (email: string) => {
-    return jwt.sign({ email }, this.SECRET, { expiresIn: '15m' });
+    return jwt.sign({ email }, this.SECRET, { expiresIn: this.REFRESH_EXPIRATION });
   };
 
   private authenticateToken = (token: string)  => {
@@ -95,14 +99,10 @@ export default class LoginControler {
         refresh_token = user.refreshToken;
         const response = this.authenticateToken(refresh_token);
         if (!response.authenticate) {
-          console.error('/POST 403 Forbidden');
-          return res.status(403).send({
-            messageCode: 'forbidden',
-            response,
-          });
+          refresh_token = this.generateRefreshToken(user.email);
+          this.userService.updateRefreshToken(user.email, refresh_token);
         } 
         access_token = this.generateAccessToken(user.email);
-        
       } else {
         access_token = this.generateAccessToken(user.email);
         refresh_token = this.generateRefreshToken(user.email);
@@ -114,17 +114,17 @@ export default class LoginControler {
           //path: '/*',
           //secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
-          maxAge: 5 * 60 * 1000, // 15 minutos
+          maxAge: 1 * 60 * 1000, // 15 minutos
         })
         .cookie('refresh_token', refresh_token, {
           httpOnly: true,
           //path: '/*',
           //secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
-          maxAge: 15 * 60 * 1000, // 7 dias
+          maxAge: 5 * 60 * 1000, // 7 dias
         })
         .status(200)
-        .json({ success: true, message: 'Login realizado com sucesso!' });
+        .json({ success: true, tte: this.REFRESH_EXPIRATION });
       console.log('/POST 200 OK');
     } catch (error) {
       console.error(`/POST 500 ${error}`);
@@ -138,6 +138,9 @@ export default class LoginControler {
   private logout = async (req: Request, res: Response) => {
     try {
       const refreshToken = req.cookies['refresh_token'];
+      if (!refreshToken) {
+        return res.status(204).json({ message: 'Não é necessario realizar logout' });
+      }
       const user = await this.userService.getUserByRefreshToken(refreshToken);
       if (!user) {
         return res.status(403).json({ message: 'Token inválido' });
@@ -219,21 +222,23 @@ export default class LoginControler {
   private verifyRefreshToken = async (req: Request, res: Response) => {
     const token = req.cookies['refresh_token'];
     if (!token) {
-      console.log('GET /login/verifyRefresh 401 sem token');
+      console.log('GET /login/verifyRefresh 204 sem token');
       return res
-        .clearCookie('access_token')
-        .clearCookie('refresh_token')
-        .status(401)
-        .json({ authenticated: null });
+        .status(204)
+        .send(false);
     }
     const response = this.authenticateToken(token);
     console.log('response', response);
     if (response.authenticate === true) {
       console.log('GET /login/verifyRefresh 200 OK');
-      return res.status(200).json({ authenticated: true });
+      return res.status(200).send(true);
     } else {
       console.log('GET /login/verify 401 Unauthorized');
-      return res.status(401).json(response.message);
+      const user = await this.userService.getUserByRefreshToken(token);
+      if (user) {
+        await this.userService.updateRefreshToken(user.email, '');
+      }
+      return res.status(204).send(false);
     }
   };
 }

@@ -25,49 +25,19 @@ class TaskController {
 
 
   private async authenticateToken(req: Request, res: Response, next: NextFunction): Promise<any> {
-    let isAuthenticated = false;
-    const JWT_SECRET = process.env.JWT_SECRET || 'secret';
-    const refreshToken = req.cookies['refresh_token'];
-    if (refreshToken) {
-      const isAuth = jwt.verify(refreshToken, JWT_SECRET);
-      if (isAuth) {
-        isAuthenticated = true;
-      }
-    }
-    if (!isAuthenticated) {
-      return res.status(403).send({ message: 'Token inválido.' });
-    } else {
-      const token = req.cookies['access_token'];
-      if (!token) {
-        const user = await this.userService.getUserByRefreshToken(refreshToken);
-        const username = user && user.email ? user.email : undefined;
-        if (!username) {
+        const token = req.cookies['access_token'];
+        const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+        if (!token) {
+          return res.status(401).send({ message: 'Token ausente ou inválido.' });
+        }
+    
+        try {
+          const decoded = jwt.verify(token, JWT_SECRET);
+          (req as any).user = decoded; // Anexa os dados do usuário à requisição
+          next();
+        } catch (err) {
           return res.status(403).send({ message: 'Token inválido.' });
         }
-        const JWT_SECRET = process.env.JWT || 'secret';
-        const ACCESS_TOKEN_EXPIRATION =
-          process.env.ACCESS_TOKEN_EXPIRATION || '5m';
-        const token = jwt.sign({ username }, JWT_SECRET, {
-          expiresIn: ACCESS_TOKEN_EXPIRATION,
-        });
-        token;
-        res.cookie('access_token', token, {
-            //httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
-            maxAge: 15 * 60 * 1000, // 15 minutos
-          }).json({success: 'true', message: 'Token de acesso renovado' });
-      }
-  
-      try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        (req as any).user = decoded; // Anexa os dados do usuário à requisição
-        next();
-      } catch (err) {
-        return res.status(403).send({ message: 'Token inválido.' });
-      }
-
-    }
   }
   
 
