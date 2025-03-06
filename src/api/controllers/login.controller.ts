@@ -95,11 +95,8 @@ export default class LoginControler {
         refresh_token = user.refreshToken;
         const response = this.authenticateToken(refresh_token);
         if (!response.authenticate) {
-          console.error('/POST 403 Forbidden');
-          return res.status(403).send({
-            messageCode: 'forbidden',
-            response,
-          });
+          refresh_token = this.generateRefreshToken(user.email);
+          this.userService.updateRefreshToken(user.email, refresh_token);
         } 
         access_token = this.generateAccessToken(user.email);
         
@@ -219,17 +216,17 @@ export default class LoginControler {
   private verifyRefreshToken = async (req: Request, res: Response) => {
     const token = req.cookies['refresh_token'];
     if (!token) {
-      console.log('GET /login/verifyRefresh 401 sem token');
-      return res.status(204).json({ authenticated: false });
+      console.log('GET /login/verifyRefresh 401 sem token!');
+      return res.status(401).send( false );
     }
     const response = this.authenticateToken(token);
     console.log('response', response);
     if (response.authenticate === true) {
-      console.log('GET /login/verify 200 OK');
-      return res.status(200).json({ authenticated: true });
+      console.log('GET /login/verifyRefresh 200 OK');
+      return res.status(200).send( true );
     } else {
-      console.log('GET /login/verify 401 Unauthorized');
-      return res.status(401).json(response.message);
+      console.log('GET /login/verifyRefresh 401 Unauthorized');
+      return res.status(401).send( false );
     }
   };
 }
