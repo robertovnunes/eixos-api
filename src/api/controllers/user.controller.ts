@@ -24,6 +24,9 @@ class UserController {
         this.router.get(`${this.prefix}/:id`, (req: Request, res: Response) => {
             this.getUserById(req, res);
         });
+        this.router.get(`${this.prefix}/token/:token`, (req: Request, res: Response) => {
+            this.getUserByToken(req, res);
+        });
         this.router.get(`${this.prefix}/:email`, (req: Request, res: Response) => {
             this.getUserByEmail(req, res);
         });
@@ -75,6 +78,26 @@ class UserController {
             res.status(500).send({ messageCode: 'server_error', message: 'internal server error' });
         }
     };
+
+    private getUserByToken = async (req: Request, res: Response) => {
+        try {
+            const user = await this.userService.getUserByRefreshToken(
+              req.params.token,
+            );
+            if (!user) {
+                console.error('/GET 404 not found');
+                res
+                    .status(404)
+                    .send({ messageCode: 'not_found', message: 'User not found' });
+            } else {
+                console.log('/GET 200 OK');
+                res.status(200).send(user);
+            }
+        } catch (error) {
+            console.error(`/GET 500 ${error}`);
+            res.status(500).send({ messageCode: 'server_error', message: 'internal server error' });
+        }
+    }
 
     private getUserByEmail = async (req: Request, res: Response) => {
         try {
